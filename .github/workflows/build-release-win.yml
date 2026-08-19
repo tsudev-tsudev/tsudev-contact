@@ -30,12 +30,14 @@ jobs:
       - name: Chạy test (gồm cả kiểm thử GUI)
         run: python -m unittest discover -s tests -v
 
+      # Chỉ đối chiếu khi chạy theo tag; chạy tay từ tab Actions thì ref_name là tên nhánh.
       - name: Đối chiếu tag với APP_VERSION
+        if: github.ref_type == 'tag'
         shell: pwsh
         run: |
           $appVersion = python -c "from src.app_info import APP_VERSION; print(APP_VERSION)"
           $tagVersion = "${{ github.ref_name }}" -replace '^v', ''
-          if ($tagVersion -and $tagVersion -ne $appVersion) {
+          if ($tagVersion -ne $appVersion) {
             throw "Tag '$tagVersion' khác APP_VERSION '$appVersion' — sửa src/app_info.py hoặc đặt lại tag."
           }
           Write-Host "Phiên bản: $appVersion"
