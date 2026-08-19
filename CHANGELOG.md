@@ -5,7 +5,11 @@ Quy ước đặt tên bản phát hành: `docs/DESIGN_SYSTEM.md` mục 6.
 
 ## Chưa phát hành
 
-- (trống — mọi thay đổi đã nằm trong bản 26.8.2002)
+- Cửa sổ xem trước hiển thị **nhãn vCard** (Tên, SĐT, Email...) thay cho tên cột CSV, thêm cột `Dòng CSV` và dòng chú thích cột CSV nguồn (`src/features/preview/columns.py`, 6 test).
+- Tự động hóa kiểm thử GUI: `tests/test_gui_smoke.py` + `scripts/test-gui-win.ps1` chạy đúng kịch bản `docs/ARCHITECTURE.md` mục 8 (5 test); máy không có màn hình thì tự bỏ qua. Workflow phát hành chạy luôn phần này trên `windows-latest`.
+- Sửa lỗi tiềm ẩn: thread chuyển đổi gọi `root.after` trực tiếp (tkinter không an toàn đa luồng) → chuyển sang hàng đợi do main thread rút, hủy lượt hẹn khi đóng cửa sổ.
+- Thêm `scripts/sign-win.ps1`: ký Authenticode + đóng dấu thời gian bằng công cụ có sẵn của Windows (không tốn phí); `scripts/build-win.ps1` thêm cờ `-Sign` và tự ghi `release/SHA256SUMS.txt`.
+- Repo chuyển sang **public** để GitHub Actions chạy miễn phí không giới hạn và ai cũng tải được bản phát hành.
 
 ## 26.8.2002 — 20/08/2026
 

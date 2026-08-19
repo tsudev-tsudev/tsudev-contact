@@ -9,7 +9,13 @@ param(
     # Bỏ qua bước cài đặt phụ thuộc (dùng khi môi trường đã sẵn sàng).
     [switch]$SkipDeps,
     # Giữ lại thư mục build/ trung gian để chẩn đoán lỗi PyInstaller.
-    [switch]$KeepBuild
+    [switch]$KeepBuild,
+    # Ký số bản .exe sau khi build (xem scripts\sign-win.ps1 để biết giới hạn).
+    [switch]$Sign,
+    # Tham số chứng thư chuyển thẳng cho sign-win.ps1: -PfxPath / -Thumbprint / -SelfSigned.
+    [string]$PfxPath,
+    [string]$Thumbprint,
+    [switch]$SelfSigned
 )
 
 $ErrorActionPreference = 'Stop'
@@ -58,6 +64,22 @@ $final = Join-Path $releaseDir "$releaseName.exe"
 Move-Item -Force $built $final
 
 if (-not $KeepBuild) { Remove-Item -Recurse -Force (Join-Path $repoRoot 'build') -ErrorAction SilentlyContinue }
+
+# --- 7. Ký số (tùy chọn) — phải ký TRƯỚC khi tính mã băm ---
+if ($Sign -or $PfxPath -or $Thumbprint -or $SelfSigned) {
+    Write-Step 'Ký số bản .exe'
+    $signArgs = @{ Path = $final }
+    if ($PfxPath)    { $signArgs['PfxPath'] = $PfxPath }
+    if ($Thumbprint) { $signArgs['Thumbprint'] = $Thumbprint }
+    if ($SelfSigned) { $signArgs['SelfSigned'] = $true }
+    & (Join-Path $PSScriptRoot 'sign-win.ps1') @signArgs
+}
+
+# --- 8. Mã băm để người tải tự đối chiếu (cách xác thực MIỄN PHÍ, xem README.md) ---
+Write-Step 'Tính SHA256SUMS.txt'
+$hash = (Get-FileHash -Algorithm SHA256 $final).Hash.ToLower()
+"$hash  $releaseName.exe" | Set-Content -Path (Join-Path $releaseDir 'SHA256SUMS.txt') -Encoding ascii
+Write-Host "  $hash"
 
 $sizeMb = [math]::Round((Get-Item $final).Length / 1MB, 1)
 Write-Step "XONG: $final ($sizeMb MB)"

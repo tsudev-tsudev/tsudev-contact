@@ -7,10 +7,14 @@ kèm cửa sổ xem trước có phân trang.
 
 [**Trang phát hành → Releases**](https://github.com/tsudev-tsudev/tsudev-contact/releases/latest)
 → tải `tsudev-contact_{version}_x64-setup.exe` trong mục *Assets*, bấm đúp để chạy.
-File chạy độc lập, **không cần cài Python**. Lần đầu SmartScreen có thể cảnh báo (chưa ký số):
-*More info → Run anyway*. Đối chiếu `SHA256SUMS.txt` nếu cần kiểm tra toàn vẹn.
+File chạy độc lập, **không cần cài Python**. Lần đầu SmartScreen có thể cảnh báo (chưa có chứng
+thư của CA — xem mục *Ký số bản .exe*): *More info → Run anyway*. Muốn chắc file không bị sửa,
+đối chiếu với `SHA256SUMS.txt` đính kèm cùng bản phát hành:
 
-> Repo đang ở chế độ **private**: chỉ tài khoản GitHub được cấp quyền mới mở được link trên.
+```powershell
+Get-FileHash tsudev-contact_26.8.2002_x64-setup.exe -Algorithm SHA256
+```
+
 
 ## Chạy từ mã nguồn (lập trình viên)
 
@@ -29,8 +33,16 @@ python contacts.pyw              # Windows: bấm đúp contacts.pyw
 ## Chạy test
 
 ```bash
-python -m unittest discover -s tests    # không cần tkinter/Pillow
+python -m unittest discover -s tests    # logic: không cần tkinter/Pillow
 ```
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\test-gui-win.ps1   # thêm cả kiểm thử GUI
+```
+
+`tests/test_gui_smoke.py` dựng cửa sổ thật và đi hết kịch bản người dùng (khởi động → đoán cột →
+chuyển đổi → xem trước → đổi chủ đề). Máy không có tkinter hoặc không có phiên đồ họa (WSL, SSH)
+thì phần này **tự bỏ qua**. Chi tiết: `docs/ARCHITECTURE.md` mục 8.
 
 ## Đóng gói Windows
 
@@ -50,18 +62,31 @@ Tên file lấy từ `RELEASE_BASENAME` trong `src/app_info.py` — mỗi bản 
 
 Workflow `.github/workflows/build-release-win.yml` sẽ chạy trên `windows-latest`: đối chiếu tag với
 `APP_VERSION`, chạy test, gọi `scripts/build-win.ps1`, tính SHA256 và đính `.exe` vào Release của tag đó.
-Chỉ chạy khi có tag (không chạy mỗi lần push) để tiết kiệm phút Actions của gói miễn phí.
+Chỉ chạy khi có tag (không chạy mỗi lần push) — giữ thói quen tiết kiệm phút Actions.
 
-> **Hiện GitHub Actions của tài khoản đang bị chặn** ("recent account payments have failed or your
-> spending limit needs to be increased" — xem *Settings → Billing & plans*). Trong lúc đó, phát hành
-> bằng tay ngay trên máy Windows, không tốn phút Actions:
+> Repo để **public** nên Actions chạy miễn phí không giới hạn. Nếu vì lý do nào đó Actions không
+> chạy, vẫn phát hành được bằng tay ngay trên máy Windows:
 >
 > ```powershell
 > powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1
 > gh release create v26.8.2003 release\*.exe --title "tsudev-contact 26.8.2003 — Windows x64" --notes-file notes.md
 > ```
->
-> (Runner của Actions miễn phí không giới hạn nếu repo chuyển sang **public**.)
+
+## Ký số bản .exe (tùy chọn)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\sign-win.ps1 -SelfSigned      # chứng thư tự ký
+powershell -ExecutionPolicy Bypass -File scripts\sign-win.ps1 -PfxPath ma.pfx  # chứng thư của CA
+powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1 -Sign -SelfSigned
+```
+
+Script dùng công cụ có sẵn trong Windows (`Set-AuthenticodeSignature`) + máy chủ đóng dấu thời gian
+miễn phí — **không tốn phí**. Nhưng nói thẳng: chứng thư **tự ký không gỡ được cảnh báo SmartScreen**
+trên máy người khác; muốn hết cảnh báo phải mua chứng thư OV/EV của CA, không có phương án miễn phí
+tương đương. Mật khẩu `.pfx` không truyền qua tham số — đặt `$env:SIGN_PFX_PASSWORD` hoặc để script hỏi.
+
+Cách xác thực miễn phí đang dùng: mỗi Release kèm `SHA256SUMS.txt`, người tải đối chiếu bằng
+`Get-FileHash <file> -Algorithm SHA256` (Windows) hoặc `sha256sum -c SHA256SUMS.txt` (Linux/macOS).
 
 ## Lưu ý dữ liệu
 

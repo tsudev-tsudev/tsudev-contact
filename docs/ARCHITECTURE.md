@@ -109,25 +109,54 @@ dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file �
    `FIELD_ALIASES` (Anh/Việt, bỏ dấu, khớp nguyên tên trước rồi mới khớp một phần —
    hỗ trợ cả `Phone 1 - Value` của Google Contacts). 5 test bao phủ.
 
+### 6.2. Lỗi phát hiện khi tự động hóa kiểm thử GUI (20/08/2026)
+
+6. **Gọi `root.after` từ thread nền** — `ContactsApp._uiCall` chạy trong thread chuyển đổi và
+   gọi thẳng `self.root.after(...)`, tức là chạm vào interpreter Tcl từ thread khác. Khi có
+   `mainloop()` thật thì thường "may mà chạy", nhưng test tự động (quay vòng lặp bằng
+   `update()`) làm nó ném `RuntimeError: main thread is not in main loop` — đúng bản chất:
+   tkinter **không an toàn đa luồng**. Đã đổi sang `queue.Queue`: thread nền chỉ `put()`,
+   main thread có `_pumpUiQueue` (hẹn lại mỗi 30ms) rút hàng đợi và đụng widget. Lượt hẹn
+   đang treo được `after_cancel` khi cửa sổ gốc bị hủy, tránh Tcl báo `invalid command name`.
+   *Bài học: mọi cập nhật UI từ thread nền phải đi qua hàng đợi do main thread rút.*
+
 ## 7. Nợ kỹ thuật còn lại
 
 1. Chưa có trình cài đặt thật (Inno/NSIS): bản phát hành là **1 file .exe onefile** mang tên
    `..._x64-setup.exe`. Thêm installer khi cần shortcut Start Menu / gỡ cài đặt.
-2. Chưa ký số (code signing) — SmartScreen sẽ cảnh báo ở lần chạy đầu trên máy khác.
-3. Test chỉ phủ phần logic (`converter`, `database`, `settings`); phần tkinter kiểm bằng
-   kịch bản chạy thử thủ công trên Windows (xem mục 8), chưa tự động hóa trong CI.
-4. `PreviewWindow` hiển thị tiêu đề cột theo **tên cột CSV** chứ không theo nhãn vCard.
+2. Chưa ký số bằng chứng thư của CA — SmartScreen vẫn cảnh báo ở lần chạy đầu trên máy khác.
+   `scripts/sign-win.ps1` đã có sẵn quy trình ký (Authenticode + dấu thời gian, dùng công cụ
+   có sẵn trong Windows, không tốn phí), nhưng **chứng thư tự ký không gỡ được cảnh báo** —
+   muốn hết cảnh báo phải mua chứng thư OV/EV, không có phương án miễn phí tương đương.
+   Cách xác thực miễn phí đang dùng: `release/SHA256SUMS.txt` đính kèm mỗi Release.
 
-## 8. Kịch bản chạy thử GUI trước khi phát hành
+## 8. Kiểm thử GUI
 
-Chạy trên Windows (WSL không có `tkinter`/màn hình):
+Đã tự động hóa: `tests/test_gui_smoke.py` chạy đúng kịch bản dưới đây bằng cách gọi thẳng
+handler của widget và tự quay vòng lặp sự kiện (`update()`), không cần bấm chuột thật.
 
-1. `python -m pip install pillow` → `python contacts.pyw`.
-2. Màn hình kiểm tra hệ thống (400x200) → mưa ký tự (500x300) → cửa sổ chính trượt xuống,
-   tiêu đề chứa đúng chuỗi phiên bản.
-3. Chọn CSV có cột `Name/Phone/...` → 7 trường phải **tự ghép đủ**, không còn "(Bỏ qua)".
-4. Bấm chuyển đổi → nhật ký báo dòng thiếu Tên/SĐT màu đỏ, kết thúc hiện hộp thoại thành công,
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\test-gui-win.ps1          # toàn bộ test
+powershell -ExecutionPolicy Bypass -File scripts\test-gui-win.ps1 -GuiOnly # chỉ phần GUI
+```
+
+Máy không có tkinter hoặc không có phiên đồ họa (WSL, SSH, Session 0) → cả lớp test **tự bỏ
+qua**, không làm đỏ bộ test chung. Workflow phát hành chạy trên `windows-latest` nên các test
+này chạy thật trong CI ở bước `Chạy test`.
+
+Test dồn mọi dữ liệu app (`settings.json`, CSDL tạm) vào thư mục dùng một lần bằng cách đổi
+`tempfile.tempdir`, và thay `messagebox` bằng bản ghi nhận để hộp thoại không chặn vòng lặp.
+
+Kịch bản được phủ (giữ lại để đối chiếu khi cần chạy tay):
+
+1. Chuỗi khởi động: màn hình kiểm tra hệ thống → mưa ký tự → cửa sổ chính hiện ra, tiêu đề
+   chứa đúng chuỗi phiên bản.
+2. Chọn CSV → 7 trường tự ghép đủ, hai trường bắt buộc không còn "(Bỏ qua)".
+3. Chuyển đổi → nhật ký báo dòng thiếu Tên/SĐT (tô màu `danger`), hộp thoại thành công,
    file `.vcf` có đúng số liên hệ hợp lệ.
-5. "Xem thử Danh bạ" → bảng phân trang, dòng lỗi tô nền đỏ.
-6. Menu *Giao diện* → đổi lần lượt Sáng / Ấm / Tối, không widget nào bị mất chữ hoặc giữ
-   nền của chủ đề cũ; mở lại app phải nhớ chủ đề vừa chọn.
+4. "Xem thử Danh bạ" → tiêu đề cột là **nhãn vCard**, dòng lỗi tô nền đỏ, phân trang đúng tổng số.
+5. Menu *Giao diện* → Sáng / Ấm / Tối: nền cửa sổ và màu nút khớp tokens, nút chính không mất
+   chữ, lựa chọn được ghi nhớ trong `settings.json`.
+
+Việc chưa tự động được (vẫn phải nhìn bằng mắt khi đổi giao diện lớn): bố cục có bị vỡ không,
+hiệu ứng trượt/mờ có mượt không, và bản `.exe` sau khi đóng gói có chạy trên máy sạch không.
