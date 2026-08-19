@@ -17,10 +17,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Không bật `cache: pip`: repo không có requirements.txt (danh sách phụ thuộc nằm
+      # trong scripts/build-win.ps1), thêm file chỉ để cache là trùng lặp không đáng.
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: pip
 
       - name: Cài phụ thuộc
         run: python -m pip install --upgrade pip pillow pyinstaller
