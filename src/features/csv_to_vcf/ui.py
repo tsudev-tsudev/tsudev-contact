@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Cửa sổ chính: chọn file, ánh xạ cột CSV ↔ trường vCard, chạy chuyển đổi."""
 import os
+import queue
 import threading
 import tkinter as tk
 import webbrowser
@@ -18,6 +19,7 @@ from src.services.tokens import loadTokens
 MAPPING_COLUMNS = 3          # số cột lưới của khu vực ghép nối
 IMPORT_PROGRESS_SHARE = 80   # % tiến trình dành cho giai đoạn nạp CSV
 LOG_HEIGHT_ROWS = 5
+UI_QUEUE_POLL_MS = 30        # nhịp main thread lấy việc do thread nền gửi lên
 
 
 class ContactsApp:
@@ -28,6 +30,8 @@ class ContactsApp:
         self.db = DatabaseManager()
         self.lastSavedFolder = None
         self.previewColumns = {}
+        self.uiQueue = queue.Queue()
+        self.uiPumpJobId = None
 
         self.root.title(f"{APP_NAME} - Chuyển đổi CSV sang vCard (v{APP_VERSION})")
         if self.iconPhoto:
@@ -39,6 +43,8 @@ class ContactsApp:
         self._configureStyles()
         self._createMenu()
         self._createWidgets()
+        self._pumpUiQueue()
+        self.root.bind('<Destroy>', self._onRootDestroyed, add='+')
 
     # ------------------------------------------------------------------ style
     def _configureStyles(self):
@@ -370,8 +376,36 @@ class ContactsApp:
             self._uiCall(self.convertButton.config, state="normal")
 
     def _uiCall(self, callback, *args, **kwargs):
-        """Đưa lời gọi về main thread của tkinter."""
-        self.root.after(0, lambda: callback(*args, **kwargs))
+        """Xếp lời gọi vào hàng đợi để main thread thực thi.
+
+        KHÔNG gọi thẳng `root.after` từ thread nền: tkinter không an toàn đa luồng,
+        Tcl ném `RuntimeError: main thread is not in main loop`. Chỉ `queue.Queue`
+        được chạm từ thread nền; mọi widget đều do `_pumpUiQueue` đụng tới.
+        """
+        self.uiQueue.put((callback, args, kwargs))
+
+    def _pumpUiQueue(self):
+        """Chạy trên main thread: rút hết việc trong hàng đợi rồi tự hẹn lượt sau."""
+        while True:
+            try:
+                callback, args, kwargs = self.uiQueue.get_nowait()
+            except queue.Empty:
+                break
+            callback(*args, **kwargs)
+        try:
+            self.uiPumpJobId = self.root.after(UI_QUEUE_POLL_MS, self._pumpUiQueue)
+        except tk.TclError:
+            self.uiPumpJobId = None  # cửa sổ đã đóng — dừng vòng lặp
+
+    def _onRootDestroyed(self, event):
+        """Hủy lượt hẹn đang treo, tránh Tcl báo `invalid command name` lúc thoát."""
+        if event.widget is not self.root or self.uiPumpJobId is None:
+            return
+        try:
+            self.root.after_cancel(self.uiPumpJobId)
+        except tk.TclError:
+            pass
+        self.uiPumpJobId = None
 
     def _onConversionSucceeded(self, totalSuccess):
         for btn in (self.previewButton, self.openFolderButton):
