@@ -21,6 +21,11 @@
 - **Phát hành**: `release/tsudev-contact_26.8.2002_x64-setup.exe` (18.5 MB) — đã chạy thử chính file
   .exe đó (cửa sổ chính lên đúng, tiêu đề `v26.8.2002`). `release/` nằm trong `.gitignore`.
 
+- **T10** — đẩy `main` lên repo private và dựng phần phát hành trên GitHub:
+  Release [`v26.8.2002`](https://github.com/tsudev-tsudev/tsudev-contact/releases/tag/v26.8.2002)
+  kèm `.exe` (19.4 MB) + `SHA256SUMS.txt`; thêm `.github/workflows/build-release-win.yml` để lần sau
+  chỉ cần đẩy tag `v<APP_VERSION>` là tự build và đính file vào Release.
+
 ## 2. Việc dang dở + bước tiếp theo CỤ THỂ
 
 - Không còn việc dang dở. Hàng đợi trong `logs/STATE.md` đã cạn — chờ chủ project giao task mới.
@@ -49,6 +54,10 @@
   đang làm vậy). Thanh cuộn Tk cổ điển do Windows vẽ native, không đổi màu được → dùng `ttk.Scrollbar`.
 - **Đánh số bản phát hành**: `26.8.2001` là build nội bộ, không phát hành; bản chính thức trong ngày
   là `26.8.2002`. Bản kế tiếp cùng ngày → `26.8.2003` (chỉ sửa `APP_VERSION` trong `src/app_info.py`).
+- **Repo đang private** → trang Releases chỉ mở được bằng tài khoản có quyền. Muốn người ngoài tải
+  được phải chuyển repo sang public (mã nguồn đã sạch PII, nhưng đây là quyết định của chủ project).
+- **Tài khoản `gh`**: phiên này đã `gh auth switch --user tsudev-tsudev`. Máy có 2 tài khoản, luôn
+  kiểm tra `gh api user --jq .login` trước khi thao tác GitHub.
 - **Không có ảnh chụp màn hình nào được giữ lại** — thư mục làm việc tạm trên Windows đã xóa sạch
   (ảnh chụp có thể lọt nội dung cửa sổ khác của chủ máy).
 

@@ -1,0 +1,64 @@
+# Đẩy tag dạng `v26.8.2002` → tự build .exe trên Windows và đính vào GitHub Release.
+# Chỉ chạy khi có tag mới (không chạy mỗi lần push) để tiết kiệm phút Actions của gói miễn phí.
+name: Build & Release (Windows)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:        # cho phép bấm chạy tay từ tab Actions
+
+permissions:
+  contents: write           # cần để tạo release và tải file lên
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Cài phụ thuộc
+        run: python -m pip install --upgrade pip pillow pyinstaller
+
+      - name: Chạy test
+        run: python -m unittest discover -s tests -v
+
+      - name: Đối chiếu tag với APP_VERSION
+        shell: pwsh
+        run: |
+          $appVersion = python -c "from src.app_info import APP_VERSION; print(APP_VERSION)"
+          $tagVersion = "${{ github.ref_name }}" -replace '^v', ''
+          if ($tagVersion -and $tagVersion -ne $appVersion) {
+            throw "Tag '$tagVersion' khác APP_VERSION '$appVersion' — sửa src/app_info.py hoặc đặt lại tag."
+          }
+          Write-Host "Phiên bản: $appVersion"
+
+      - name: Đóng gói bằng script phát hành
+        shell: pwsh
+        run: .\scripts\build-win.ps1 -SkipDeps
+
+      - name: Tính SHA256
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem release\*.exe | Select-Object -First 1
+          (Get-FileHash $exe.FullName -Algorithm SHA256).Hash + "  " + $exe.Name |
+            Out-File -Encoding ascii "release\SHA256SUMS.txt"
+          Get-Content "release\SHA256SUMS.txt"
+
+      - name: Lưu sản phẩm build
+        uses: actions/upload-artifact@v4
+        with:
+          name: tsudev-contact-windows
+          path: release/*
+
+      - name: Đính vào Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.ref_name }}" (Get-ChildItem release\* | ForEach-Object FullName) --clobber
