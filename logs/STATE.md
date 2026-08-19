@@ -4,17 +4,20 @@
 - [ ] (trống — chủ project giao task mới)
 
 ### Gợi ý việc tiếp theo (chưa phải task, cần chủ project duyệt)
-- Quyết định để repo private (chỉ mình tải) hay chuyển public (ai cũng tải được từ trang Releases, và Actions chạy miễn phí không giới hạn).
-- Xử lý cảnh báo thanh toán ở *Settings → Billing & plans* nếu muốn dùng GitHub Actions cho repo private.
-- Ký số bản .exe để tránh cảnh báo SmartScreen trên máy khác.
-- Tự động hóa kiểm thử GUI (kịch bản ở `docs/ARCHITECTURE.md` mục 8) — hiện chạy tay.
-- Cột trong cửa sổ xem trước đang hiển thị tên cột CSV, chưa phải nhãn vCard.
+- Phát hành bản `26.8.2003` gói các thay đổi đang ở mục "Chưa phát hành" của `CHANGELOG.md`: sửa `APP_VERSION` → đẩy tag `v26.8.2003` → Actions tự build và đính `.exe` vào Release.
+- Xóa chứng thư thử nghiệm còn sót trong kho tin cậy của Windows (xem mục "Việc dang dở").
+- Kiểm thử GUI chưa phủ: bố cục có vỡ không, hiệu ứng trượt/mờ, `.exe` chạy trên máy sạch — vẫn phải nhìn mắt khi đổi giao diện lớn.
+- Muốn hết cảnh báo SmartScreen phải mua chứng thư OV/EV (không có phương án miễn phí tương đương).
 
 ## Đang thực hiện
 | Task | Agent | Bắt đầu |
 |---|---|---|
 
 ## Đã hoàn thành (mới nhất trên cùng)
+- 20/08/2026 — T14: repo chuyển **public**; Actions hết bị chặn, chạy trọn pipeline xanh (run `32291387041`); sửa 2 lỗi workflow (cache pip thiếu requirements.txt, đối chiếu tag khi chạy tay)
+- 20/08/2026 — T13 `8470ceb`: `scripts/sign-win.ps1` ký Authenticode + dấu thời gian miễn phí, `build-win.ps1` thêm `-Sign` và tự ghi `release/SHA256SUMS.txt`
+- 20/08/2026 — T12 `f528c3a`: `tests/test_gui_smoke.py` + `scripts/test-gui-win.ps1` tự động hóa kịch bản GUI (5 test, chạy thật trên Windows và trên runner CI); phát hiện & sửa lỗi gọi `root.after` từ thread nền
+- 20/08/2026 — T11 `4eed8a5`: cửa sổ xem trước dùng nhãn vCard + cột `Dòng CSV` + chú thích cột CSV nguồn (6 test)
 - 20/08/2026 — T10: push `main` lên repo private; tạo Release `v26.8.2002` kèm `.exe` + `SHA256SUMS.txt`; thêm workflow tự build khi đẩy tag
 - 20/08/2026 — T9: chủ đề Sáng/Ấm/Tối + `src/services/settings.py` (ghi nhớ lựa chọn), 18/18 test
 - 20/08/2026 — T8 `a47aa98`: chạy thử GUI thật trên Windows → phát hiện & sửa 2 lỗi (nút mất chữ, đoán cột CSV)
@@ -28,7 +31,10 @@
 - 19/08/2026 — Khởi tạo bộ quy ước v1.0.0
 
 ## Quyết định quan trọng
-- 20/08/2026 — **GitHub Actions của tài khoản đang bị chặn vì thanh toán** (job dừng sau 2 giây: "recent account payments have failed or your spending limit needs to be increased"). Workflow đã đúng cú pháp (job được tạo); trước mắt phát hành bằng `scripts/build-win.ps1` + `gh release create` trên máy Windows. Actions miễn phí không giới hạn nếu repo chuyển public.
+- 20/08/2026 — **Repo đã chuyển PUBLIC** theo yêu cầu chủ project. Hệ quả đã kiểm chứng: GitHub Actions chạy lại bình thường (hết lỗi chặn thanh toán), phút Actions miễn phí không giới hạn, trang Releases ai cũng tải được. Toàn bộ project không dùng dịch vụ trả phí nào.
+- 20/08/2026 — **Ký số**: chỉ dùng công cụ miễn phí có sẵn của Windows (`Set-AuthenticodeSignature` + timestamp RFC3161). Chứng thư tự ký KHÔNG gỡ được SmartScreen trên máy khác — chấp nhận, thay bằng đối chiếu `SHA256SUMS.txt`. Không mua chứng thư OV/EV.
+- 20/08/2026 — Workflow **không bật `cache: pip`**: repo không có `requirements.txt` (phụ thuộc khai báo trong `scripts/build-win.ps1`); thêm file chỉ để cache là trùng lặp không đáng, repo public nên không cần tiết kiệm phút.
+- 20/08/2026 — **tkinter không an toàn đa luồng**: mọi cập nhật UI từ thread nền phải qua `queue.Queue` do main thread rút (`ContactsApp._pumpUiQueue`), tuyệt đối không gọi `root.after` từ thread khác.
 - 20/08/2026 — Phát hành qua **GitHub Releases**, tag `v<APP_VERSION>` (ví dụ `v26.8.2002`). Workflow chỉ chạy theo tag để tiết kiệm phút Actions; runner `windows-latest` tính 2x phút.
 - 20/08/2026 — Repo giữ **private**: trang Releases chỉ mở được với tài khoản có quyền. Muốn ai cũng tải được thì phải chuyển repo sang public (chủ project quyết định).
 - 20/08/2026 — **Cách chạy GUI/build Windows từ WSL**: gọi `powershell.exe` (interop) dùng Python 3.11 sẵn có trên Windows, tạo venv trong `%TEMP%\tsudev-contact-build`. Không cần cài `python3-tk` trong WSL.
