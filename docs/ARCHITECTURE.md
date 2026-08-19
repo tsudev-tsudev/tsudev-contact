@@ -87,6 +87,20 @@ Ba lỗi tồn tại trong bản 1 file, phát hiện khi tách module:
 Ngoài ra, CSDL tạm chuyển từ thư mục cài đặt (`resourcePath`) sang thư mục temp của người
 dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file đó chứa PII.
 
+### 6.1. Lỗi phát hiện khi chạy thử GUI thật trên Windows (20/08/2026)
+
+4. **Nút "BẮT ĐẦU CHUYỂN ĐỔI" mất chữ** — style `Highlight.TButton` đặt
+   `foreground=on-primary` (trắng) kèm `background=primary`, nhưng theme `vista` của ttk vẽ
+   nút bằng native theme và **bỏ qua `-background`** → chữ trắng trên nền trắng khi nút có
+   focus. Đã đổi sang `tk.Button` (widget cổ điển tôn trọng `bg`/`fg`), màu vẫn lấy từ tokens.
+   *Bài học: trên Windows, style ttk chỉ nên chỉnh `foreground`/`font`; muốn đổi nền nút phải
+   dùng `tk.Button` hoặc theme `clam`.*
+5. **Đoán cột CSV bỏ sót trường bắt buộc SĐT** — hàm đoán cũ so khớp `field in header`, nên
+   cột `Phone`/`Số điện thoại` không khớp trường `number`, `Note` không khớp `notes`; người
+   dùng luôn phải chọn tay 2 trường bắt buộc. Đã thay bằng `converter.guessHeader` + bảng
+   `FIELD_ALIASES` (Anh/Việt, bỏ dấu, khớp nguyên tên trước rồi mới khớp một phần —
+   hỗ trợ cả `Phone 1 - Value` của Google Contacts). 5 test bao phủ.
+
 ## 7. Nợ kỹ thuật còn lại
 
 1. `Contacts.spec` đặt tên đầu ra `Contacts.exe`, chưa theo quy ước

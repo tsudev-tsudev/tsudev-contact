@@ -100,5 +100,36 @@ class CsvToVcfTest(unittest.TestCase):
             converter.importCsvToDb(emptyCsv, MAPPINGS, self.db)
 
 
+class GuessHeaderTest(unittest.TestCase):
+    """Đoán cột CSV → trường vCard (converter.guessHeader)."""
+
+    SKIP = converter.SKIP_OPTION
+
+    def test_khop_dung_ten_cot_tieng_anh(self):
+        headers = ['Name', 'Phone', 'Email', 'Organization', 'Address', 'Note', 'Birthday']
+        guessed = {f: converter.guessHeader(f, headers, self.SKIP) for f in converter.VCARD_FIELDS}
+        self.assertEqual(guessed, {
+            'name': 'Name', 'number': 'Phone', 'email': 'Email',
+            'organization': 'Organization', 'address': 'Address',
+            'notes': 'Note', 'birthday': 'Birthday'})
+
+    def test_khop_ten_cot_tieng_viet_va_co_dau_cach(self):
+        headers = ['Họ tên', 'Số điện thoại', 'Địa chỉ', 'Ghi chú']
+        self.assertEqual(converter.guessHeader('address', headers, self.SKIP), 'Địa chỉ')
+        self.assertEqual(converter.guessHeader('notes', headers, self.SKIP), 'Ghi chú')
+
+    def test_khop_mot_phan_kieu_google_contacts(self):
+        headers = ['First Name', 'Phone 1 - Value', 'E-mail 1 - Value']
+        self.assertEqual(converter.guessHeader('number', headers, self.SKIP), 'Phone 1 - Value')
+        self.assertEqual(converter.guessHeader('email', headers, self.SKIP), 'E-mail 1 - Value')
+
+    def test_uu_tien_khop_nguyen_ten_truoc_khop_mot_phan(self):
+        headers = ['Mobile Phone', 'Phone']
+        self.assertEqual(converter.guessHeader('number', headers, self.SKIP), 'Phone')
+
+    def test_khong_doan_duoc_thi_tra_gia_tri_mac_dinh(self):
+        self.assertEqual(converter.guessHeader('birthday', ['Cột lạ'], self.SKIP), self.SKIP)
+
+
 if __name__ == '__main__':
     unittest.main()

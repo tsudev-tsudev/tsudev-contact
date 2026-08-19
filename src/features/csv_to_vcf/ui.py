@@ -66,10 +66,6 @@ class ContactsApp:
         self.style.configure('Required.TLabel', font=t.font(weightName='semibold'),
                              foreground=t.color('danger'), background=bg)
         self.style.configure('Success.Horizontal.TProgressbar', background=t.color('success'))
-        self.style.configure('Highlight.TButton', font=t.font(weightName='semibold'),
-                             foreground=t.color('on-primary'), background=t.color('primary'))
-        self.style.map('Highlight.TButton',
-                       background=[('active', t.color('primary-hover'))])
 
     # ------------------------------------------------------------------- menu
     def _createMenu(self):
@@ -126,9 +122,17 @@ class ContactsApp:
 
         actionFrame = ttk.Frame(mainFrame)
         actionFrame.grid(row=2, column=0, pady=t.space(4))
-        self.convertButton = ttk.Button(actionFrame, text="BẮT ĐẦU CHUYỂN ĐỔI",
-                                        command=self._startConversion,
-                                        style='Highlight.TButton', padding=t.space(3))
+        # Dùng tk.Button (không phải ttk): theme 'vista' bỏ qua -background nên nút ttk
+        # sẽ hiện chữ trắng trên nền trắng khi có focus. Màu vẫn lấy từ tokens.
+        self.convertButton = tk.Button(actionFrame, text="BẮT ĐẦU CHUYỂN ĐỔI",
+                                       command=self._startConversion,
+                                       font=t.font(weightName='semibold'),
+                                       bg=t.color('primary'), fg=t.color('on-primary'),
+                                       activebackground=t.color('primary-hover'),
+                                       activeforeground=t.color('on-primary'),
+                                       disabledforeground=t.color('text-muted'),
+                                       relief=tk.FLAT, borderwidth=0, cursor='hand2',
+                                       padx=t.space(5), pady=t.space(3))
         self.convertButton.pack()
 
         self.statusText = tk.StringVar(value="Chưa chọn file CSV")
@@ -189,16 +193,8 @@ class ContactsApp:
 
             combo = ttk.Combobox(fieldFrame, values=options, state='readonly', width=15)
             combo.pack(side=tk.LEFT, expand=True, fill=tk.X)
-            combo.set(self._guessHeader(field, headers, options[0]))
+            combo.set(converter.guessHeader(field, headers, options[0]))
             self.fieldMappings[field] = combo
-
-    @staticmethod
-    def _guessHeader(field, headers, fallback):
-        """Đoán cột CSV khớp với trường vCard theo tên (bỏ dấu cách/gạch dưới)."""
-        return next(
-            (h for h in headers if field in h.lower().replace(' ', '').replace('_', '')),
-            fallback,
-        )
 
     # ------------------------------------------------------------------ hành động
     def _browseCsv(self):

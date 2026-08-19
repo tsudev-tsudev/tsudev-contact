@@ -5,6 +5,7 @@ Tiến trình và lỗi từng dòng được báo ra ngoài qua callback để 
 cách hiển thị (xem `src/features/csv_to_vcf/ui.py`).
 """
 import csv
+import unicodedata
 from datetime import datetime
 
 SKIP_OPTION = '(Bỏ qua)'
@@ -24,7 +25,47 @@ DB_FIELDS = ['name', 'number', 'email', 'organization', 'address', 'birthday', '
 
 REQUIRED_FIELDS = ['name', 'number']
 
+# Tên cột thường gặp trong file CSV xuất từ Google Contacts / Outlook / Excel tiếng Việt.
+# Dùng để đoán ánh xạ cột — người dùng vẫn có thể chọn lại bằng tay.
+FIELD_ALIASES = {
+    'name': ['name', 'ten', 'hoten', 'fullname', 'displayname', 'contactname'],
+    'number': ['number', 'phone', 'sdt', 'sodienthoai', 'dienthoai', 'mobile', 'tel', 'cell'],
+    'email': ['email', 'mail', 'thudientu'],
+    'organization': ['organization', 'org', 'company', 'congty', 'tochuc'],
+    'address': ['address', 'diachi', 'addr'],
+    'notes': ['notes', 'note', 'ghichu', 'comment'],
+    'birthday': ['birthday', 'bday', 'ngaysinh', 'dob', 'birthdate'],
+}
+
 CSV_ENCODING = 'utf-8-sig'  # utf-8-sig để tự bỏ BOM do Excel sinh ra
+
+
+def normalizeHeader(header: str) -> str:
+    """Chuẩn hóa tên cột để so khớp: bỏ dấu tiếng Việt, hoa/thường, dấu cách và gạch nối."""
+    noMarks = ''.join(
+        c for c in unicodedata.normalize('NFD', header.lower().replace('đ', 'd'))
+        if not unicodedata.combining(c)
+    )
+    return ''.join(c for c in noMarks if c.isalnum())
+
+
+def guessHeader(field: str, headers: list, fallback: str) -> str:
+    """Đoán cột CSV khớp với một trường vCard.
+
+    Ưu tiên khớp đúng nguyên tên trước, sau đó mới khớp một phần (ví dụ cột
+    "Phone 1 - Value" của Google Contacts). Không đoán được → trả `fallback`.
+    """
+    aliases = FIELD_ALIASES.get(field, [field])
+    normalized = [(h, normalizeHeader(h)) for h in headers]
+    for alias in aliases:
+        for original, norm in normalized:
+            if norm == alias:
+                return original
+    for alias in aliases:
+        for original, norm in normalized:
+            if alias in norm:
+                return original
+    return fallback
 
 
 def readCsvHeaders(csvPath: str) -> list:
