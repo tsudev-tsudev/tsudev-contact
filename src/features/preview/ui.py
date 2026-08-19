@@ -3,11 +3,13 @@
 import tkinter as tk
 from tkinter import ttk
 
+from src.features.preview.columns import buildColumnDefs, describeSources
 from src.services.tokens import DEFAULT_THEME, loadTokens
 
 PAGE_SIZE = 50
 WINDOW_SIZE = "900x600"
 COLUMN_WIDTH = 120
+ROW_NUMBER_WIDTH = 70
 
 
 class PreviewWindow(tk.Toplevel):
@@ -31,20 +33,34 @@ class PreviewWindow(tk.Toplevel):
 
         mainFrame = ttk.Frame(self, padding=self.tokens.space(3))
         mainFrame.pack(fill=tk.BOTH, expand=True)
-        mainFrame.rowconfigure(0, weight=1)
+        mainFrame.rowconfigure(1, weight=1)
         mainFrame.columnconfigure(0, weight=1)
+        self.columnDefs = buildColumnDefs(self.columnsMap)
+        self._createSourceCaption(mainFrame)
         self._createTreeview(mainFrame)
         self._createPaginationControls(mainFrame)
         self.loadPage()
 
+    def _createSourceCaption(self, parent):
+        """Nhắc mỗi nhãn vCard đang lấy từ cột CSV nào (tiêu đề bảng chỉ hiện nhãn vCard)."""
+        caption = describeSources(self.columnDefs)
+        if not caption:
+            return
+        tk.Label(parent, text=caption, anchor='w', justify='left', wraplength=820,
+                 bg=self.tokens.color('bg-base'), fg=self.tokens.color('text-muted'),
+                 font=self.tokens.font('sm')).grid(
+            row=0, column=0, sticky='ew', pady=(0, self.tokens.space(2)))
+
     def _createTreeview(self, parent):
         treeFrame = ttk.Frame(parent)
-        treeFrame.grid(row=0, column=0, sticky='nsew')
-        self.columnsDef = {key: name.replace('*', '') for key, name in self.columnsMap.items()}
-        self.tree = ttk.Treeview(treeFrame, columns=list(self.columnsDef.keys()), show="headings")
-        for key, name in self.columnsDef.items():
-            self.tree.heading(key, text=name)
-            self.tree.column(key, width=COLUMN_WIDTH, anchor='w')
+        treeFrame.grid(row=1, column=0, sticky='nsew')
+        self.columnKeys = [key for key, _, _ in self.columnDefs]
+        self.tree = ttk.Treeview(treeFrame, columns=self.columnKeys, show="headings")
+        for key, label, _ in self.columnDefs:
+            width = ROW_NUMBER_WIDTH if key == 'original_row' else COLUMN_WIDTH
+            anchor = 'center' if key == 'original_row' else 'w'
+            self.tree.heading(key, text=label)
+            self.tree.column(key, width=width, anchor=anchor)
 
         vsb = ttk.Scrollbar(treeFrame, orient="vertical", command=self.tree.yview)
         hsb = ttk.Scrollbar(treeFrame, orient="horizontal", command=self.tree.xview)
@@ -59,7 +75,7 @@ class PreviewWindow(tk.Toplevel):
     def _createPaginationControls(self, parent):
         gap = self.tokens.space(1)
         controlsFrame = ttk.Frame(parent, padding=(0, self.tokens.space(3), 0, 0))
-        controlsFrame.grid(row=1, column=0, sticky='ew')
+        controlsFrame.grid(row=2, column=0, sticky='ew')
         controlsFrame.columnconfigure(2, weight=1)
 
         self.firstBtn = ttk.Button(controlsFrame, text="<< Đầu", command=lambda: self.goToPage(1))
@@ -80,7 +96,7 @@ class PreviewWindow(tk.Toplevel):
             self.tree.delete(item)
         for contact in self.db.getContactsPaginated(self.currentPage, self.pageSize):
             # sqlite3.Row không có .get() — truy cập bằng khóa, cột luôn tồn tại trong schema
-            values = [contact[key] or '' for key in self.columnsDef]
+            values = [contact[key] or '' for key in self.columnKeys]
             tags = ('failed_row',) if contact['status'] == 'failed' else ()
             self.tree.insert("", tk.END, values=values, tags=tags)
         self.updateControls()
