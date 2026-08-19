@@ -3,9 +3,13 @@
 
 a = Analysis(
     ['contacts.pyw'],
-    pathex=[],
+    pathex=['.'],  # để bundle nhìn thấy package src/
     binaries=[],
-    datas=[('icon.png', '.')],
+    datas=[
+        ('icon.png', '.'),
+        # tokens/ là nguồn chân lý giao diện — src/services/tokens.py đọc lúc chạy
+        ('tokens/design-tokens.json', 'tokens'),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

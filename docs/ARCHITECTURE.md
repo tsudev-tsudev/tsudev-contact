@@ -18,22 +18,39 @@ kèm cửa sổ xem trước dữ liệu có phân trang.
 | Chạy nền | `threading` | Giữ UI không đơ khi chuyển đổi file lớn |
 | Đóng gói | PyInstaller — `Contacts.spec` | `console=False`, nhúng `icon.png` qua `datas` |
 
-## 3. Bố cục mã nguồn hiện tại (`contacts.pyw`, 455 dòng)
+## 3. Bố cục mã nguồn
 
-Toàn bộ nằm trong **một file ở gốc repo** — chưa theo `docs/PROJECT_STRUCTURE.md`.
+`contacts.pyw` ở gốc chỉ còn là **điểm khởi chạy mỏng** (nạp `sys.path` rồi gọi `src.main.app.main`)
+— giữ nguyên để `Contacts.spec` và thói quen bấm đúp file không đổi.
 
-| Vùng | Dòng | Trách nhiệm |
-|---|---|---|
-| `resource_path()` | 26 | Giải đường dẫn tài nguyên khi chạy từ bundle PyInstaller |
-| `DatabaseManager` | 35–82 | Tạo/ghi/đếm/phân trang SQLite (`contacts_data.db`) |
-| `SystemCheckWindow`, `MatrixWindow` | 84–143 | Màn hình khởi động hiệu ứng |
-| `ContactsApp` | 145–350 | Cửa sổ chính: chọn file, ánh xạ cột, chạy chuyển đổi, log tiến trình |
-| `PreviewWindow` | 352–415 | Treeview xem trước + điều khiển phân trang |
-| khối khởi động | 417+ | Chuỗi màn hình: matrix → system check → app chính |
+```
+src/
+├── app_info.py                     # tên app, phiên bản, tác giả — khai báo 1 nơi
+├── main/app.py                     # AppLauncher: splash → cửa sổ chính + hiệu ứng trượt
+├── features/
+│   ├── csv_to_vcf/converter.py     # logic chuyển đổi THUẦN, không import tkinter
+│   ├── csv_to_vcf/ui.py            # ContactsApp: chọn file, ghép cột, nhật ký
+│   ├── preview/ui.py               # PreviewWindow: treeview + phân trang
+│   └── splash/{matrix,system_check}.py
+├── services/
+│   ├── database.py                 # DatabaseManager (SQLite)
+│   └── tokens.py                   # đọc tokens/design-tokens.json → API màu/font/spacing
+└── utils/{resource_path,dpi}.py
+tests/test_csv_to_vcf.py            # test tích hợp luồng CSV → SQLite → vCard
+```
 
-**Kế hoạch tách** (task T3 trong `logs/STATE.md`):
-`src/main/` (khởi động) · `src/features/csv-to-vcf/` · `src/features/preview/` ·
-`src/services/database.py` · `src/utils/resource-path.py`.
+**Quy tắc đặt tên**: thư mục/file theo `snake_case` thay vì `kebab-case` — Python không
+import được tên có dấu gạch ngang. Áp dụng ngoại lệ "theo chuẩn ngôn ngữ" của
+`docs/PROJECT_STRUCTURE.md`; ngữ nghĩa tên giữ nguyên. Hàm/biến dùng `camelCase` đúng quy ước.
+
+**Ranh giới UI ↔ logic**: `converter.py` không biết gì về tkinter; nó báo tiến trình và lỗi
+từng dòng qua callback `onProgress` / `onRowError`. `ui.py` chạy nó trong thread nền và
+đẩy mọi cập nhật về main thread qua `_uiCall()` (bọc `root.after`). Nhờ vậy toàn bộ luồng
+chuyển đổi test được mà không cần màn hình.
+
+**Giao diện dùng token**: `src/services/tokens.py` đọc thẳng `tokens/design-tokens.json`
+(đúng chỉ dẫn trong chính file token). Cỡ chữ truyền cho tkinter dưới dạng **số âm = pixel**
+để khớp đơn vị px của token. Màn hình hiệu ứng dùng bảng màu chủ đề `dark`.
 
 ## 4. Luồng dữ liệu
 
@@ -54,10 +71,29 @@ File CSV người dùng chọn (filedialog)
   (xem `.env.example`). Không phát sinh chi phí hạ tầng.
 - **Chỉ 1 dependency ngoài stdlib** (`Pillow`) — giữ nguyên tắc "thư viện nhẹ" của AGENTS.md mục 4.
 
-## 6. Nợ kỹ thuật đã biết
+## 6. Lỗi đã sửa khi tái cấu trúc (20/08/2026)
 
-1. Mã nguồn 1 file 455 dòng ở gốc, chưa có `src/` → T3.
-2. Màu/cỡ chữ hard-code trong UI (ví dụ `#00ff41` ở hiệu ứng matrix), chưa dùng `tokens/` → T4.
-3. `Contacts.spec` đặt tên đầu ra `Contacts.exe`, chưa theo quy ước
-   `tsudev-contact_{YY}.{M}.{DD}{NN}_x64-setup.exe` (DESIGN_SYSTEM.md mục 6).
-4. Chưa có `tests/`, chưa có script build trong `scripts/`.
+Ba lỗi tồn tại trong bản 1 file, phát hiện khi tách module:
+
+1. **`sqlite3.Row` không có `.get()`** — `contact.get('email')` trong luồng xuất VCF ném
+   `AttributeError` ngay liên hệ đầu tiên, rơi vào `except` và báo "Lỗi nghiêm trọng"
+   → **chức năng xuất VCF không bao giờ chạy xong**. `PreviewWindow` mắc đúng lỗi này.
+   Đã đổi sang truy cập bằng khóa (`contact['email'] or ''`), có test chặn hồi quy.
+2. **Sai số tham số** — `_update_progress(value, text)` được gọi với 3 tham số ở nhánh
+   hoàn tất và nhánh lỗi → `TypeError`, thanh tiến trình không bao giờ chốt 100%.
+3. **Rò rỉ kết nối SQLite** — `with sqlite3.connect(...)` chỉ commit/rollback, không đóng
+   kết nối. Đã bọc `contextlib.closing`.
+
+Ngoài ra, CSDL tạm chuyển từ thư mục cài đặt (`resourcePath`) sang thư mục temp của người
+dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file đó chứa PII.
+
+## 7. Nợ kỹ thuật còn lại
+
+1. `Contacts.spec` đặt tên đầu ra `Contacts.exe`, chưa theo quy ước
+   `tsudev-contact_{YY}.{M}.{DD}{NN}_x64-setup.exe` (DESIGN_SYSTEM.md mục 6);
+   chuỗi phiên bản trong `src/app_info.py` vẫn là `5.2` — đổi khi phát hành bản kế tiếp.
+2. Chưa có script build trong `scripts/`.
+3. Chưa chạy thử GUI sau tái cấu trúc: môi trường phát triển hiện tại (WSL) không có
+   `tkinter`/`Pillow`/màn hình. Đã kiểm bằng test logic (8/8) + pyflakes sạch;
+   **cần chạy thử trên Windows trước khi phát hành**.
+4. Ứng dụng mới chỉ dùng chủ đề `light`; token đã sẵn `warm`/`dark` nếu muốn thêm tùy chọn.

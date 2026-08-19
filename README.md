@@ -5,6 +5,8 @@ kèm cửa sổ xem trước có phân trang.
 
 ## Chạy trong 5 phút
 
+Yêu cầu **Python ≥ 3.8** (dùng toán tử `:=`) kèm `tkinter`. Đã kiểm trên Python 3.14.
+
 ```bash
 python -m pip install pillow     # dependency duy nhất ngoài thư viện chuẩn
 python contacts.pyw              # Windows: bấm đúp contacts.pyw
@@ -13,6 +15,12 @@ python contacts.pyw              # Windows: bấm đúp contacts.pyw
 1. **Chọn file CSV** danh bạ (dòng đầu là tên cột, hỗ trợ BOM UTF-8).
 2. Ánh xạ cột CSV sang trường vCard — bắt buộc có **Tên** và **SĐT**.
 3. Bấm chuyển đổi → file `.vcf` được ghi cạnh file CSV. Xem trước dữ liệu ở menu tương ứng.
+
+## Chạy test
+
+```bash
+python -m unittest discover -s tests    # không cần tkinter/Pillow
+```
 
 ## Đóng gói Windows
 
