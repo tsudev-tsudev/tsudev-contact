@@ -1,21 +1,25 @@
 # STATE.md — Trạng thái project (agent đọc đầu phiên, cập nhật cuối phiên)
 
 ## Hàng đợi task (làm từ trên xuống)
-- [ ] T1 — Bảo mật: đưa dữ liệu cá nhân (`danh_ba_102_xa.csv`) vào `.gitignore`; `git init` + commit đầu sạch
-- [ ] T2 — Bổ sung file thiếu theo PROJECT_STRUCTURE.md: `CHANGELOG.md`, `docs/ARCHITECTURE.md`, `.env.example`
-- [ ] T3 — Tái cấu trúc `contacts.pyw` (28KB, 1 file gốc) sang `src/` (main/features/services/utils) — việc lớn, chia nhiều phiên
-- [ ] T4 — Chuẩn hóa UI: thay màu/cỡ chữ hard-code trong code bằng giá trị truy ngược về `tokens/design-tokens.json`
-- [ ] T5 — Tạo repo GitHub `tsudev-contact` cho tài khoản https://github.com/tsudev-tsudev + push
-      CHẶN: `gh` đang đăng nhập `dieuhanhcongviecxanuicam`, cần chủ project đăng nhập `tsudev-tsudev`
+- [ ] Chạy thử GUI trên Windows sau tái cấu trúc (bắt buộc trước khi phát hành) — xem phiếu 20260820-01 mục 2
+- [ ] Chuẩn hóa tên bản phát hành + chuỗi version theo DESIGN_SYSTEM.md mục 6 (`Contacts.spec`, `src/app_info.py`)
+- [ ] Thêm `scripts/build-win.ps1` gói lệnh PyInstaller
+- [ ] (tùy chọn) Thêm tùy chọn chủ đề warm/dark cho giao diện
 
 ## Đang thực hiện
 | Task | Agent | Bắt đầu |
 |---|---|---|
-| T1 — Bảo mật + git init | agent-session-20260820 | 00:43 20/08/2026 |
 
 ## Đã hoàn thành (mới nhất trên cùng)
-- 20/08/2026 — Dọn thư mục rỗng rác `{docs/templates,tokens,logs/handover}` (brace-expansion hỏng lúc khởi tạo repo)
+- 20/08/2026 — T5: tạo repo private `tsudev-tsudev/tsudev-contact`, push `main` (không file PII nào được theo dõi)
+- 20/08/2026 — T3+T4 `b947660`: tách `contacts.pyw` → `src/`, giao diện dùng `tokens/`, thêm 8 test, sửa 3 lỗi
+- 20/08/2026 — T2 `332c74d`: thêm CHANGELOG / ARCHITECTURE / .env.example, viết lại README
+- 20/08/2026 — T1 `5032a7f`: `git init`, ignore dữ liệu danh bạ PII
 - 19/08/2026 — Khởi tạo bộ quy ước v1.0.0
 
 ## Quyết định quan trọng
+- 20/08/2026 — `src/` dùng `snake_case` cho file/thư mục (Python không import được dấu gạch ngang); hàm/biến giữ `camelCase`.
+- 20/08/2026 — Logic chuyển đổi tách khỏi tkinter, giao tiếp qua callback → test được không cần màn hình.
+- 20/08/2026 — Giao diện đọc thẳng `tokens/design-tokens.json` qua `src/services/tokens.py`; cỡ chữ truyền tkinter dạng số âm = pixel.
+- 20/08/2026 — CSDL tạm đặt ở thư mục temp người dùng, không đặt cạnh file thực thi (chỉ-đọc + chứa PII).
 - 19/08/2026 — Dùng Inter làm font chuẩn; token là nguồn chân lý duy nhất; region ưu tiên Singapore → Nhật Bản.
