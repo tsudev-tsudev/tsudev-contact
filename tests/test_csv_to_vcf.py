@@ -11,6 +11,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.features.csv_to_vcf import converter
+from src.services import settings
 from src.services.database import DatabaseManager
 
 CSV_SAMPLE = """Tên,SĐT,Ghi chú,Email
@@ -129,6 +130,37 @@ class GuessHeaderTest(unittest.TestCase):
 
     def test_khong_doan_duoc_thi_tra_gia_tri_mac_dinh(self):
         self.assertEqual(converter.guessHeader('birthday', ['Cột lạ'], self.SKIP), self.SKIP)
+
+
+class SettingsTest(unittest.TestCase):
+    """Tùy chọn người dùng (src/services/settings.py)."""
+
+    def setUp(self):
+        self.tempDir = tempfile.TemporaryDirectory()
+        self.path = os.path.join(self.tempDir.name, 'settings.json')
+
+    def tearDown(self):
+        self.tempDir.cleanup()
+
+    def test_chua_co_file_thi_tra_mac_dinh(self):
+        self.assertEqual(settings.loadSettings(self.path), {'theme': 'light'})
+
+    def test_ghi_roi_doc_lai_dung_chu_de(self):
+        settings.saveSetting('theme', 'dark', self.path)
+        self.assertEqual(settings.loadSettings(self.path)['theme'], 'dark')
+
+    def test_file_hong_khong_lam_sap_app(self):
+        with open(self.path, 'w', encoding='utf-8') as f:
+            f.write('{ khong phai json')
+        self.assertEqual(settings.loadSettings(self.path)['theme'], 'light')
+
+    def test_chu_de_la_bo_ve_mac_dinh(self):
+        settings.saveSetting('theme', 'neon', self.path)
+        self.assertEqual(settings.loadSettings(self.path)['theme'], 'light')
+
+    def test_khoa_tuy_chon_khong_hop_le_bi_tu_choi(self):
+        with self.assertRaises(KeyError):
+            settings.saveSetting('mat_khau', 'x', self.path)
 
 
 if __name__ == '__main__':

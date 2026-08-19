@@ -5,12 +5,13 @@ import threading
 import tkinter as tk
 import webbrowser
 from datetime import datetime
-from tkinter import ttk, filedialog, messagebox, scrolledtext
+from tkinter import ttk, filedialog, messagebox
 
 from src.app_info import APP_NAME, APP_VERSION, APP_AUTHOR, SUPPORT_URL
 from src.features.csv_to_vcf import converter
 from src.features.csv_to_vcf.converter import SKIP_OPTION, VCARD_FIELDS
 from src.features.preview.ui import PreviewWindow
+from src.services import settings
 from src.services.database import DatabaseManager
 from src.services.tokens import loadTokens
 
@@ -23,7 +24,7 @@ class ContactsApp:
     def __init__(self, root, iconPhoto):
         self.root = root
         self.iconPhoto = iconPhoto
-        self.tokens = loadTokens()
+        self.tokens = loadTokens(settings.loadSettings()['theme'])
         self.db = DatabaseManager()
         self.lastSavedFolder = None
         self.previewColumns = {}
@@ -42,13 +43,18 @@ class ContactsApp:
     # ------------------------------------------------------------------ style
     def _configureStyles(self):
         t = self.tokens
-        self.style = ttk.Style(self.root)
-        try:
-            self.style.theme_use('vista')  # chỉ có trên Windows
-        except tk.TclError:
-            pass
+        self.style = getattr(self, 'style', None) or ttk.Style(self.root)
+        # 'vista' vẽ widget theo native Windows (đẹp nhưng bỏ qua màu nền) — chỉ hợp chủ đề
+        # sáng. Chủ đề ấm/tối cần đổi nền nên phải dùng 'clam' (tôn trọng mọi màu).
+        for themeName in (('vista', 'clam') if t.theme == 'light' else ('clam',)):
+            try:
+                self.style.theme_use(themeName)
+                break
+            except tk.TclError:
+                continue
 
         bg = t.color('bg-base')
+        self.root.configure(bg=bg)
         self.style.configure('TLabel', font=t.font(), background=bg,
                              foreground=t.color('text-primary'))
         self.style.configure('TButton', font=t.font(weightName='semibold'),
@@ -66,6 +72,70 @@ class ContactsApp:
         self.style.configure('Required.TLabel', font=t.font(weightName='semibold'),
                              foreground=t.color('danger'), background=bg)
         self.style.configure('Success.Horizontal.TProgressbar', background=t.color('success'))
+        if self.style.theme_use() != 'vista':
+            self._configureNonNativeStyles()
+
+    def _configureNonNativeStyles(self):
+        """Theme 'clam' không vẽ theo native nên phải tô màu từng nhóm widget từ tokens."""
+        t = self.tokens
+        surface, text = t.color('bg-surface'), t.color('text-primary')
+        self.style.configure('TButton', background=surface, foreground=text,
+                             bordercolor=t.color('border'), focuscolor=t.color('focus-ring'),
+                             lightcolor=surface, darkcolor=surface)
+        self.style.map('TButton',
+                       background=[('active', t.color('bg-hover')),
+                                   ('disabled', t.color('bg-subtle'))],
+                       foreground=[('disabled', t.color('text-muted'))])
+        self.style.configure('TEntry', fieldbackground=surface, foreground=text,
+                             bordercolor=t.color('border'), insertcolor=text)
+        self.style.configure('TCombobox', fieldbackground=surface, background=surface,
+                             foreground=text, arrowcolor=t.color('text-secondary'),
+                             bordercolor=t.color('border'))
+        self.style.map('TCombobox', fieldbackground=[('readonly', surface)],
+                       foreground=[('readonly', text)])
+        # Danh sách thả xuống của Combobox là widget Tk cổ điển, chỉ đổi màu qua option database
+        for option, value in (('background', surface), ('foreground', text),
+                              ('selectBackground', t.color('primary')),
+                              ('selectForeground', t.color('on-primary'))):
+            self.root.option_add(f'*TCombobox*Listbox.{option}', value)
+        for progressStyle in ('TProgressbar', 'Horizontal.TProgressbar',
+                              'Success.Horizontal.TProgressbar'):
+            self.style.configure(progressStyle, troughcolor=t.color('bg-subtle'),
+                                 bordercolor=t.color('border'), lightcolor=t.color('bg-subtle'),
+                                 darkcolor=t.color('bg-subtle'))
+        self.style.configure('Success.Horizontal.TProgressbar', background=t.color('success'))
+        self.style.configure('Treeview', background=surface, fieldbackground=surface,
+                             foreground=text, bordercolor=t.color('border'))
+        self.style.configure('Treeview.Heading', background=t.color('bg-subtle'),
+                             foreground=text)
+        self.style.map('Treeview', background=[('selected', t.color('primary'))],
+                       foreground=[('selected', t.color('on-primary'))])
+        self.style.configure('TScrollbar', background=t.color('bg-subtle'),
+                             troughcolor=t.color('bg-base'),
+                             bordercolor=t.color('border'),
+                             arrowcolor=t.color('text-secondary'))
+        self.style.configure('TLabelframe', bordercolor=t.color('border'))
+
+    # ------------------------------------------------------------------ chủ đề
+    def _applyTheme(self, themeName: str):
+        """Đổi chủ đề giao diện lúc chạy và ghi nhớ lựa chọn cho lần mở sau."""
+        self.tokens = loadTokens(themeName)
+        settings.saveSetting('theme', themeName)
+        self._configureStyles()
+        self._restyleClassicWidgets()
+
+    def _restyleClassicWidgets(self):
+        """Widget Tk cổ điển (không phải ttk) không theo Style — phải tô lại thủ công."""
+        t = self.tokens
+        self.convertButton.config(bg=t.color('primary'), fg=t.color('on-primary'),
+                                  activebackground=t.color('primary-hover'),
+                                  activeforeground=t.color('on-primary'),
+                                  disabledforeground=t.color('text-muted'))
+        self.statusLog.config(bg=t.color('bg-surface'), fg=t.color('text-primary'),
+                              insertbackground=t.color('text-primary'))
+        self.statusLog.tag_configure("success", foreground=t.color('success'))
+        self.statusLog.tag_configure("error", foreground=t.color('danger'),
+                                     font=t.font('sm', 'semibold', mono=True))
 
     # ------------------------------------------------------------------- menu
     def _createMenu(self):
@@ -78,6 +148,14 @@ class ContactsApp:
         fileMenu.add_command(label="Chọn nơi lưu VCF...", command=self._browseVcf, accelerator="Ctrl+S")
         fileMenu.add_separator()
         fileMenu.add_command(label="Thoát", command=self.root.quit)
+
+        self.themeVar = tk.StringVar(value=self.tokens.theme)
+        themeMenu = tk.Menu(menuBar, tearoff=0)
+        menuBar.add_cascade(label="Giao diện", menu=themeMenu)
+        for themeName in settings.THEMES:
+            themeMenu.add_radiobutton(
+                label=settings.THEME_LABELS[themeName], value=themeName, variable=self.themeVar,
+                command=lambda name=themeName: self._applyTheme(name))
 
         helpMenu = tk.Menu(menuBar, tearoff=0)
         menuBar.add_cascade(label="Trợ giúp", menu=helpMenu)
@@ -146,10 +224,17 @@ class ContactsApp:
         logContainer.columnconfigure(0, weight=1)
         logContainer.rowconfigure(0, weight=1)
         mainFrame.rowconfigure(5, weight=1)
-        self.statusLog = scrolledtext.ScrolledText(
+        # Text + ttk.Scrollbar thay cho ScrolledText: thanh cuộn cổ điển của Tk được Windows
+        # vẽ native nên không đổi màu theo chủ đề, còn ttk.Scrollbar thì theo Style.
+        self.statusLog = tk.Text(
             logContainer, height=LOG_HEIGHT_ROWS, font=t.font('sm', mono=True),
-            wrap=tk.WORD, relief=tk.SOLID, borderwidth=1, state="disabled")
+            wrap=tk.WORD, relief=tk.SOLID, borderwidth=1, state="disabled",
+            bg=t.color('bg-surface'), fg=t.color('text-primary'),
+            insertbackground=t.color('text-primary'))
         self.statusLog.grid(row=0, column=0, sticky="nsew")
+        logScroll = ttk.Scrollbar(logContainer, orient="vertical", command=self.statusLog.yview)
+        logScroll.grid(row=0, column=1, sticky="ns")
+        self.statusLog.configure(yscrollcommand=logScroll.set)
         self.statusLog.tag_configure("success", foreground=t.color('success'))
         self.statusLog.tag_configure("error", foreground=t.color('danger'),
                                      font=t.font('sm', 'semibold', mono=True))
@@ -170,6 +255,7 @@ class ContactsApp:
                                  style='Link.TLabel', cursor="hand2")
         supportLabel.pack(anchor='e')
         supportLabel.bind("<Button-1>", lambda e: webbrowser.open_new(SUPPORT_URL))
+        self._restyleClassicWidgets()
 
     def _createFieldMappingWidgets(self, headers=None):
         t = self.tokens
@@ -325,4 +411,5 @@ class ContactsApp:
         if not totalContacts:
             messagebox.showinfo("CSDL Rỗng", "Chưa có dữ liệu.", parent=self.root)
             return
-        PreviewWindow(self.root, self.db, self.previewColumns, totalContacts, self.iconPhoto)
+        PreviewWindow(self.root, self.db, self.previewColumns, totalContacts, self.iconPhoto,
+                      theme=self.tokens.theme)

@@ -41,4 +41,12 @@
 
 ## 6. Kết quả xử lý
 
-- (phiên sau điền)
+- 20/08/2026 (phiên 20260820b) — **đã xử lý xong toàn bộ mục 2**:
+  - Chạy thử GUI trên Windows: dùng Python 3.11 của máy Windows qua interop WSL (`powershell.exe`),
+    venv riêng trong `%TEMP%`. Cả 3 màn hình + luồng chuyển đổi + xem trước đều đạt.
+    **Phát hiện 2 lỗi thật** (nút chính mất chữ, đoán cột bỏ sót SĐT) — đã sửa, xem `docs/ARCHITECTURE.md` mục 6.1.
+  - Chuẩn hóa tên phát hành + `scripts/build-win.ps1`: xong, đã build thật ra
+    `release/tsudev-contact_26.8.2002_x64-setup.exe` (18.5 MB) và chạy thử file .exe đó.
+  - Chủ đề warm/dark (mục tùy chọn): đã làm, có menu *Giao diện* + ghi nhớ lựa chọn.
+- Cảnh báo về `sqlite3.Row` ở mục 5 được xác nhận đúng: sau khi sửa, luồng xuất VCF chạy trọn vẹn
+  (30 dòng CSV → 20 vCard hợp lệ, 10 dòng thiếu SĐT bị đánh dấu đỏ).

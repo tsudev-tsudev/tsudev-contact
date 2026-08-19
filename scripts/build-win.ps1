@@ -1,4 +1,6 @@
-# build-win.ps1 — Gói bản phát hành Windows x64 cho tsudev-contact.
+﻿# build-win.ps1 — Gói bản phát hành Windows x64 cho tsudev-contact.
+# LƯU Ý: file này PHẢI lưu ở UTF-8 CÓ BOM — Windows PowerShell 5.1 đọc .ps1 không BOM
+# theo bảng mã ANSI, làm hỏng chữ tiếng Việt và gây lỗi cú pháp khi chạy.
 # Chạy từ thư mục gốc repo:  powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1
 # Tên file xuất ra do src/app_info.py quyết định (docs/DESIGN_SYSTEM.md mục 6).
 

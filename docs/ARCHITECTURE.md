@@ -34,6 +34,7 @@ src/
 │   └── splash/{matrix,system_check}.py
 ├── services/
 │   ├── database.py                 # DatabaseManager (SQLite)
+│   ├── settings.py                 # tùy chọn người dùng (chủ đề) trong temp; thư mục dữ liệu app
 │   └── tokens.py                   # đọc tokens/design-tokens.json → API màu/font/spacing
 └── utils/{resource_path,dpi}.py
 tests/test_csv_to_vcf.py            # test tích hợp luồng CSV → SQLite → vCard
@@ -51,6 +52,13 @@ chuyển đổi test được mà không cần màn hình.
 **Giao diện dùng token**: `src/services/tokens.py` đọc thẳng `tokens/design-tokens.json`
 (đúng chỉ dẫn trong chính file token). Cỡ chữ truyền cho tkinter dưới dạng **số âm = pixel**
 để khớp đơn vị px của token. Màn hình hiệu ứng dùng bảng màu chủ đề `dark`.
+
+**Chủ đề sáng/ấm/tối**: menu *Giao diện* đổi chủ đề ngay lúc chạy và ghi nhớ vào
+`settings.json` trong thư mục dữ liệu tạm. Chủ đề `light` dùng ttk theme `vista` (widget vẽ
+theo native Windows, đẹp nhưng **bỏ qua màu nền**); `warm`/`dark` bắt buộc chuyển sang theme
+`clam` vì cần đổi nền — `_configureNonNativeStyles()` tô lại Entry/Combobox/Button/Treeview/
+Progressbar/Scrollbar từ tokens. Widget Tk cổ điển (nút chính, ô nhật ký) không theo
+`ttk.Style` nên được tô riêng trong `_restyleClassicWidgets()`.
 
 ## 4. Luồng dữ liệu
 
@@ -103,11 +111,23 @@ dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file �
 
 ## 7. Nợ kỹ thuật còn lại
 
-1. `Contacts.spec` đặt tên đầu ra `Contacts.exe`, chưa theo quy ước
-   `tsudev-contact_{YY}.{M}.{DD}{NN}_x64-setup.exe` (DESIGN_SYSTEM.md mục 6);
-   chuỗi phiên bản trong `src/app_info.py` vẫn là `5.2` — đổi khi phát hành bản kế tiếp.
-2. Chưa có script build trong `scripts/`.
-3. Chưa chạy thử GUI sau tái cấu trúc: môi trường phát triển hiện tại (WSL) không có
-   `tkinter`/`Pillow`/màn hình. Đã kiểm bằng test logic (8/8) + pyflakes sạch;
-   **cần chạy thử trên Windows trước khi phát hành**.
-4. Ứng dụng mới chỉ dùng chủ đề `light`; token đã sẵn `warm`/`dark` nếu muốn thêm tùy chọn.
+1. Chưa có trình cài đặt thật (Inno/NSIS): bản phát hành là **1 file .exe onefile** mang tên
+   `..._x64-setup.exe`. Thêm installer khi cần shortcut Start Menu / gỡ cài đặt.
+2. Chưa ký số (code signing) — SmartScreen sẽ cảnh báo ở lần chạy đầu trên máy khác.
+3. Test chỉ phủ phần logic (`converter`, `database`, `settings`); phần tkinter kiểm bằng
+   kịch bản chạy thử thủ công trên Windows (xem mục 8), chưa tự động hóa trong CI.
+4. `PreviewWindow` hiển thị tiêu đề cột theo **tên cột CSV** chứ không theo nhãn vCard.
+
+## 8. Kịch bản chạy thử GUI trước khi phát hành
+
+Chạy trên Windows (WSL không có `tkinter`/màn hình):
+
+1. `python -m pip install pillow` → `python contacts.pyw`.
+2. Màn hình kiểm tra hệ thống (400x200) → mưa ký tự (500x300) → cửa sổ chính trượt xuống,
+   tiêu đề chứa đúng chuỗi phiên bản.
+3. Chọn CSV có cột `Name/Phone/...` → 7 trường phải **tự ghép đủ**, không còn "(Bỏ qua)".
+4. Bấm chuyển đổi → nhật ký báo dòng thiếu Tên/SĐT màu đỏ, kết thúc hiện hộp thoại thành công,
+   file `.vcf` có đúng số liên hệ hợp lệ.
+5. "Xem thử Danh bạ" → bảng phân trang, dòng lỗi tô nền đỏ.
+6. Menu *Giao diện* → đổi lần lượt Sáng / Ấm / Tối, không widget nào bị mất chữ hoặc giữ
+   nền của chủ đề cũ; mở lại app phải nhớ chủ đề vừa chọn.

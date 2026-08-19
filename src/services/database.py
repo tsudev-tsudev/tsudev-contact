@@ -2,10 +2,10 @@
 """Lưu trữ danh bạ tạm thời bằng SQLite để xem trước không cần nạp hết vào RAM."""
 import os
 import sqlite3
-import tempfile
 from contextlib import closing
 
-APP_TEMP_DIRNAME = 'tsudev-contact'
+from src.services.settings import appDataDir
+
 DEFAULT_DB_FILE = 'contacts_data.db'
 
 
@@ -15,9 +15,7 @@ def defaultDbPath(dbFile: str = DEFAULT_DB_FILE) -> str:
     KHÔNG đặt cạnh file thực thi: thư mục cài đặt có thể chỉ-đọc (Program Files),
     và file này chứa dữ liệu danh bạ (PII) nên không nên nằm chung với ứng dụng.
     """
-    appTempDir = os.path.join(tempfile.gettempdir(), APP_TEMP_DIRNAME)
-    os.makedirs(appTempDir, exist_ok=True)
-    return os.path.join(appTempDir, dbFile)
+    return os.path.join(appDataDir(), dbFile)
 
 
 class DatabaseManager:

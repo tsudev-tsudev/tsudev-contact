@@ -15,6 +15,7 @@ python contacts.pyw              # Windows: bấm đúp contacts.pyw
 1. **Chọn file CSV** danh bạ (dòng đầu là tên cột, hỗ trợ BOM UTF-8).
 2. Ánh xạ cột CSV sang trường vCard — bắt buộc có **Tên** và **SĐT**.
 3. Bấm chuyển đổi → file `.vcf` được ghi cạnh file CSV. Xem trước dữ liệu ở menu tương ứng.
+4. Menu **Giao diện** đổi chủ đề Sáng / Ấm / Tối; lựa chọn được ghi nhớ cho lần mở sau.
 
 ## Chạy test
 
@@ -24,10 +25,13 @@ python -m unittest discover -s tests    # không cần tkinter/Pillow
 
 ## Đóng gói Windows
 
-```bash
-python -m pip install pyinstaller
-pyinstaller Contacts.spec
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1
 ```
+
+Script tự cài phụ thuộc, chạy test, gọi PyInstaller và đặt sản phẩm vào `release/` với tên
+theo `docs/DESIGN_SYSTEM.md` mục 6 (ví dụ `tsudev-contact_26.8.2002_x64-setup.exe`).
+Tên file lấy từ `RELEASE_BASENAME` trong `src/app_info.py` — mỗi bản mới tăng 2 số cuối.
 
 ## Lưu ý dữ liệu
 

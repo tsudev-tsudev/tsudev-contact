@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from src.services.tokens import loadTokens
+from src.services.tokens import DEFAULT_THEME, loadTokens
 
 PAGE_SIZE = 50
 WINDOW_SIZE = "900x600"
@@ -11,10 +11,11 @@ COLUMN_WIDTH = 120
 
 
 class PreviewWindow(tk.Toplevel):
-    def __init__(self, parent, db, columnsMap, totalItems, iconPhoto):
+    def __init__(self, parent, db, columnsMap, totalItems, iconPhoto, theme=DEFAULT_THEME):
         super().__init__(parent)
         self.db, self.columnsMap, self.totalItems = db, columnsMap, totalItems
-        self.tokens = loadTokens()
+        self.tokens = loadTokens(theme)
+        self.configure(bg=self.tokens.color('bg-base'))
         self.pageSize, self.currentPage = PAGE_SIZE, 1
         self.totalPages = max(1, (totalItems + self.pageSize - 1) // self.pageSize)
 
