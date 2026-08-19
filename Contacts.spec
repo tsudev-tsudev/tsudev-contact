@@ -1,5 +1,9 @@
 # -*- mode: python ; coding: utf-8 -*-
+# Tên file xuất ra theo docs/DESIGN_SYSTEM.md mục 6 — lấy từ src/app_info.py (nguồn duy nhất).
+import sys
 
+sys.path.insert(0, SPECPATH)
+from src.app_info import RELEASE_BASENAME
 
 a = Analysis(
     ['contacts.pyw'],
@@ -20,16 +24,20 @@ a = Analysis(
 )
 pyz = PYZ(a.pure)
 
+# Gói 1-file: sản phẩm phát hành là đúng 1 .exe mang tên theo quy ước.
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
-    name='Contacts',
+    name=RELEASE_BASENAME,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -37,13 +45,4 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['icon.ico'],
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='Contacts',
 )

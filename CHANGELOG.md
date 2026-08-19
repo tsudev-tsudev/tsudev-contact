@@ -5,6 +5,8 @@ Quy ước đặt tên bản phát hành: `docs/DESIGN_SYSTEM.md` mục 6.
 
 ## Chưa phát hành
 
+- Chuẩn hóa tên bản phát hành theo `docs/DESIGN_SYSTEM.md` mục 6: `APP_VERSION` 5.2 → `26.8.2001`; `Contacts.spec` chuyển sang gói 1-file, xuất `tsudev-contact_26.8.2001_x64-setup.exe`.
+- Thêm `scripts/build-win.ps1`: cài phụ thuộc → chạy test → PyInstaller → đưa sản phẩm vào `release/`.
 - Chuẩn hóa repo theo bộ quy ước v1.0.0: khởi tạo git, ignore dữ liệu danh bạ PII, bổ sung `CHANGELOG.md` / `docs/ARCHITECTURE.md` / `.env.example`.
 - Tách `contacts.pyw` (455 dòng) thành `src/` theo `docs/PROJECT_STRUCTURE.md`; `contacts.pyw` giữ vai trò điểm khởi chạy mỏng.
 - Toàn bộ màu/cỡ chữ/spacing của giao diện lấy từ `tokens/design-tokens.json` qua `src/services/tokens.py` (hết hard-code).
@@ -14,5 +16,5 @@ Quy ước đặt tên bản phát hành: `docs/DESIGN_SYSTEM.md` mục 6.
 
 ## Đã phát hành
 
-_Chưa có bản nào phát hành theo quy ước tên `{ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext}`._
-_Các bản build trước 20/08/2026 dùng tên `Contacts.exe` (không theo quy ước) — xem task chuẩn hóa trong `logs/STATE.md`._
+_Chưa có bản nào phát hành. Bản kế tiếp đã sẵn sàng mang số `26.8.2001` — chỉ chờ chạy thử GUI trên Windows rồi chạy `scripts/build-win.ps1`._
+_Các bản build trước 20/08/2026 dùng tên `Contacts.exe` (không theo quy ước)._
