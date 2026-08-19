@@ -2,5 +2,8 @@
 # Định dạng: <đường dẫn> | <agent/nhiệm vụ> | <HH:mm DD/MM/YYYY>
 # Sửa xong file → XÓA dòng khóa của mình.
 
-.gitignore | agent-session-20260820 / T1 bảo mật + git init | 00:43 20/08/2026
-logs/STATE.md | agent-session-20260820 / T1 | 00:43 20/08/2026
+CHANGELOG.md | agent-session-20260820 / T2 bổ sung file thiếu | 00:52 20/08/2026
+docs/ARCHITECTURE.md | agent-session-20260820 / T2 | 00:52 20/08/2026
+.env.example | agent-session-20260820 / T2 | 00:52 20/08/2026
+README.md | agent-session-20260820 / T2 | 00:52 20/08/2026
+logs/STATE.md | agent-session-20260820 / T2 | 00:52 20/08/2026
