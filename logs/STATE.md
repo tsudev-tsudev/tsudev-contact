@@ -4,7 +4,8 @@
 - [ ] (trống — chủ project giao task mới)
 
 ### Gợi ý việc tiếp theo (chưa phải task, cần chủ project duyệt)
-- Quyết định để repo private (chỉ mình tải) hay chuyển public (ai cũng tải được từ trang Releases).
+- Quyết định để repo private (chỉ mình tải) hay chuyển public (ai cũng tải được từ trang Releases, và Actions chạy miễn phí không giới hạn).
+- Xử lý cảnh báo thanh toán ở *Settings → Billing & plans* nếu muốn dùng GitHub Actions cho repo private.
 - Ký số bản .exe để tránh cảnh báo SmartScreen trên máy khác.
 - Tự động hóa kiểm thử GUI (kịch bản ở `docs/ARCHITECTURE.md` mục 8) — hiện chạy tay.
 - Cột trong cửa sổ xem trước đang hiển thị tên cột CSV, chưa phải nhãn vCard.
@@ -27,6 +28,7 @@
 - 19/08/2026 — Khởi tạo bộ quy ước v1.0.0
 
 ## Quyết định quan trọng
+- 20/08/2026 — **GitHub Actions của tài khoản đang bị chặn vì thanh toán** (job dừng sau 2 giây: "recent account payments have failed or your spending limit needs to be increased"). Workflow đã đúng cú pháp (job được tạo); trước mắt phát hành bằng `scripts/build-win.ps1` + `gh release create` trên máy Windows. Actions miễn phí không giới hạn nếu repo chuyển public.
 - 20/08/2026 — Phát hành qua **GitHub Releases**, tag `v<APP_VERSION>` (ví dụ `v26.8.2002`). Workflow chỉ chạy theo tag để tiết kiệm phút Actions; runner `windows-latest` tính 2x phút.
 - 20/08/2026 — Repo giữ **private**: trang Releases chỉ mở được với tài khoản có quyền. Muốn ai cũng tải được thì phải chuyển repo sang public (chủ project quyết định).
 - 20/08/2026 — **Cách chạy GUI/build Windows từ WSL**: gọi `powershell.exe` (interop) dùng Python 3.11 sẵn có trên Windows, tạo venv trong `%TEMP%\tsudev-contact-build`. Không cần cài `python3-tk` trong WSL.

@@ -54,6 +54,11 @@
   đang làm vậy). Thanh cuộn Tk cổ điển do Windows vẽ native, không đổi màu được → dùng `ttk.Scrollbar`.
 - **Đánh số bản phát hành**: `26.8.2001` là build nội bộ, không phát hành; bản chính thức trong ngày
   là `26.8.2002`. Bản kế tiếp cùng ngày → `26.8.2003` (chỉ sửa `APP_VERSION` trong `src/app_info.py`).
+- **Workflow phát hành chưa chạy được**: `gh workflow run build-release-win.yml` → job thất bại sau 2
+  giây, annotation: *"The job was not started because recent account payments have failed or your
+  spending limit needs to be increased"*. Đây là vấn đề thanh toán của tài khoản GitHub, **không phải
+  lỗi workflow** (job đã được tạo nên YAML hợp lệ). Bản 26.8.2002 vì vậy được build tại máy và đẩy lên
+  Release bằng `gh release create`.
 - **Repo đang private** → trang Releases chỉ mở được bằng tài khoản có quyền. Muốn người ngoài tải
   được phải chuyển repo sang public (mã nguồn đã sạch PII, nhưng đây là quyết định của chủ project).
 - **Tài khoản `gh`**: phiên này đã `gh auth switch --user tsudev-tsudev`. Máy có 2 tài khoản, luôn

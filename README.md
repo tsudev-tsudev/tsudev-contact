@@ -52,6 +52,17 @@ Workflow `.github/workflows/build-release-win.yml` sẽ chạy trên `windows-la
 `APP_VERSION`, chạy test, gọi `scripts/build-win.ps1`, tính SHA256 và đính `.exe` vào Release của tag đó.
 Chỉ chạy khi có tag (không chạy mỗi lần push) để tiết kiệm phút Actions của gói miễn phí.
 
+> **Hiện GitHub Actions của tài khoản đang bị chặn** ("recent account payments have failed or your
+> spending limit needs to be increased" — xem *Settings → Billing & plans*). Trong lúc đó, phát hành
+> bằng tay ngay trên máy Windows, không tốn phút Actions:
+>
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1
+> gh release create v26.8.2003 release\*.exe --title "tsudev-contact 26.8.2003 — Windows x64" --notes-file notes.md
+> ```
+>
+> (Runner của Actions miễn phí không giới hạn nếu repo chuyển sang **public**.)
+
 ## Lưu ý dữ liệu
 
 File danh bạ thật (`*.csv`, `*.vcf`, `*.db`) chứa **thông tin cá nhân** và đã được
