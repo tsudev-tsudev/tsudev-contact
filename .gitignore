@@ -1,0 +1,91 @@
+# ============================================================
+# .GITIGNORE CHUẨN TOÀN HỆ SINH THÁI — chuẩn TỐI THIỂU, không được xóa bớt.
+# QUY TẮC: trong lúc làm việc, hễ tạo ra file/thư mục chứa secret, cache,
+# build output, dữ liệu cá nhân → BỔ SUNG vào đây TRƯỚC KHI commit.
+# Checklist bảo mật trước commit/PR/merge/deploy/push: AGENTS.md mục 3.
+# ============================================================
+
+# --- Secret & cấu hình nhạy cảm (TUYỆT ĐỐI không commit) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*secret*
+*credential*
+*password*
+*.token
+config.local.*
+appsettings.*.local.json
+secrets.json
+service-account*.json
+
+# --- Build output & release ---
+dist/
+build/
+release/
+out/
+bin/
+obj/
+*.exe
+*.msi
+*.dmg
+*.deb
+*.AppImage
+*.apk
+*.o
+*.obj
+*.pyc
+
+# --- Dependency & cache ---
+node_modules/
+.pnpm-store/
+__pycache__/
+.venv/
+venv/
+.cache/
+.parcel-cache/
+.vite/
+.next/
+.nuxt/
+.turbo/
+*.egg-info/
+vcpkg_installed/
+CMakeFiles/
+CMakeCache.txt
+
+# --- Log & file tạm ---
+*.log
+logs/*.tmp
+tmp/
+temp/
+scratch/
+*.swp
+*.bak
+*~
+
+# --- IDE & hệ điều hành ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Dữ liệu cục bộ / cá nhân ---
+*.sqlite
+*.db
+data/local/
+uploads/
+coverage/
+.nyc_output/
+
+# --- Dữ liệu danh bạ thật (PII: họ tên, SĐT, chức vụ) — KHÔNG commit ---
+*.csv
+*.vcf
+!*.example.csv
+!*.sample.csv
