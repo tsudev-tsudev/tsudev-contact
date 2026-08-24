@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Kiểm thử GUI tự động — bản tự động hóa kịch bản `docs/ARCHITECTURE.md` mục 8.
+"""Kiểm thử GUI tự động - bản tự động hóa kịch bản `docs/ARCHITECTURE.md` mục 8.
 
 Chạy được ở đâu: máy có tkinter + phiên đồ họa (Windows, hoặc Linux có X/Xvfb).
 Không có màn hình → toàn bộ test tự bỏ qua, KHÔNG làm đỏ bộ test chung.
@@ -48,7 +48,7 @@ def _hasDisplay() -> bool:
 
 
 HAS_GUI = _hasDisplay()
-SKIP_REASON = "Không có tkinter hoặc phiên đồ họa — bỏ qua kiểm thử GUI"
+SKIP_REASON = "Không có tkinter hoặc phiên đồ họa - bỏ qua kiểm thử GUI"
 
 _tempRoot = None
 _originalTempdir = None

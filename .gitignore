@@ -1,91 +1,272 @@
 # ============================================================
-# .GITIGNORE CHUẨN TOÀN HỆ SINH THÁI — chuẩn TỐI THIỂU, không được xóa bớt.
-# QUY TẮC: trong lúc làm việc, hễ tạo ra file/thư mục chứa secret, cache,
-# build output, dữ liệu cá nhân → BỔ SUNG vào đây TRƯỚC KHI commit.
+# .GITIGNORE CHUẨN TOÀN HỆ SINH THÁI tsudev - base v2.0.0
+# Nguồn: tsudev-standards/templates/gitignore/base.gitignore
+# Đây là chuẩn TỐI THIỂU. Được phép THÊM, KHÔNG được phép XÓA BỚT.
+# Quy tắc: hễ tạo ra file/thư mục chứa secret, cache, build output, dữ liệu
+# cá nhân -> BỔ SUNG vào đây TRƯỚC KHI commit. Chi tiết: docs/GITIGNORE_POLICY.md
 # Checklist bảo mật trước commit/PR/merge/deploy/push: AGENTS.md mục 3.
 # ============================================================
 
-# --- Secret & cấu hình nhạy cảm (TUYỆT ĐỐI không commit) ---
+# --- 1. Biến môi trường & cấu hình nhạy cảm (TUYỆT ĐỐI không commit) ---
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-*.pfx
-*.p12
-*.crt
+!.env.sample
+!.env.*.example
+!.env.*.sample
+.envrc
+.direnv/
+config.local.*
+appsettings.*.local.json
+local.settings.json
+secrets.json
+secrets.yml
+secrets.yaml
 *secret*
 *credential*
 *password*
-*.token
-config.local.*
-appsettings.*.local.json
-secrets.json
-service-account*.json
+!**/*secret*.example
+!**/*credential*.example
 
-# --- Build output & release ---
+# --- 2. Khóa, chứng chỉ, token (lộ một lần là lộ vĩnh viễn) ---
+*.pem
+*.key
+!**/*.public.key
+*.pfx
+*.p12
+*.jks
+*.keystore
+*.crt
+*.cer
+*.der
+*.asc
+*.gpg
+*.kdbx
+*.token
+*.pat
+id_rsa*
+id_ecdsa*
+id_ed25519*
+*.ppk
+*.ovpn
+.ssh/
+.gnupg/
+service-account*.json
+gha-creds-*.json
+client_secret*.json
+firebase-adminsdk*.json
+google-services.json
+GoogleService-Info.plist
+.npmrc
+.yarnrc.yml
+.pypirc
+.netrc
+_netrc
+.dockercfg
+.docker/config.json
+kubeconfig
+*.kubeconfig
+.aws/
+.azure/
+gcloud-key*.json
+
+# --- 3. Hạ tầng dưới dạng mã (chứa state và secret rò rỉ) ---
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraformrc
+terraform.rc
+.pulumi/
+Pulumi.*.yaml
+!Pulumi.yaml
+ansible/inventory/production*
+*.retry
+
+# --- 4. Bản build & bản phát hành ---
 dist/
 build/
 release/
 out/
+target/
 bin/
 obj/
+Debug/
+Release/
+x64/
+x86/
 *.exe
 *.msi
 *.dmg
+*.pkg
 *.deb
+*.rpm
 *.AppImage
 *.apk
+*.aab
+*.ipa
+*.app
 *.o
 *.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+!lib/**/*.dll
 *.pyc
+*.pyo
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
 
-# --- Dependency & cache ---
+# --- 5. Phụ thuộc & cache ---
 node_modules/
+jspm_packages/
+bower_components/
 .pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
 __pycache__/
+*.egg-info/
+.eggs/
 .venv/
 venv/
+env/
+.tox/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 .cache/
 .parcel-cache/
 .vite/
 .next/
 .nuxt/
+.svelte-kit/
+.astro/
 .turbo/
-*.egg-info/
+.nx/cache/
+.gradle/
+.dart_tool/
+.pub-cache/
+Pods/
 vcpkg_installed/
 CMakeFiles/
 CMakeCache.txt
+cmake-build-*/
+packages/*/bin/
+packages/*/obj/
 
-# --- Log & file tạm ---
+# --- 6. Log & file tạm ---
 *.log
+logs/*.log
 logs/*.tmp
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 tmp/
 temp/
 scratch/
+.scratch/
 *.swp
+*.swo
 *.bak
+*.orig
+*.rej
 *~
+.#*
+\#*#
 
-# --- IDE & hệ điều hành ---
+# --- 7. IDE, công cụ & hệ điều hành ---
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.shared.json
 .idea/
+*.iml
+*.suo
 *.user
+*.userosscache
+*.sln.docstates
+.vs/
+.history/
+.fleet/
 .DS_Store
+.AppleDouble
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
-# --- Dữ liệu cục bộ / cá nhân ---
+# --- 8. Công cụ AI & agent (có thể chứa ngữ cảnh/khóa riêng) ---
+.claude/settings.local.json
+.claude/local/
+.cursor/rules.local.md
+.aider*
+.continue/
+.codeium/
+CLAUDE.local.md
+
+# --- 9. Dữ liệu cục bộ, cá nhân & kết quả kiểm thử ---
 *.sqlite
+*.sqlite3
 *.db
+*.db-journal
+*.mdf
+*.ldf
+dump.rdb
+*.dump
+*.sql.gz
+*.bak.sql
 data/local/
+data/private/
 uploads/
+storage/app/private/
 coverage/
 .nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+junit.xml
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/
 
-# --- Dữ liệu danh bạ thật (PII: họ tên, SĐT, chức vụ) — KHÔNG commit ---
-*.csv
-*.vcf
+# --- 10. Dấu vết điều tra / gỡ lỗi (có thể chứa token phiên) ---
+*.har
+*.pcap
+*.pcapng
+*.hprof
+*.heapsnapshot
+core
+core.*
+crash-*.log
+
+# Bổ sung cho project Python - đặt SAU nội dung base.gitignore
+*.pyd
+*.whl
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.ipynb_checkpoints/
+profile_default/
+ipython_config.py
+celerybeat-schedule
+celerybeat.pid
+instance/
+.webassets-cache
+.pdm.toml
+__pypackages__/
+
+# --- Riêng của repo này (giữ lại từ .gitignore cũ) ---
 !*.example.csv
 !*.sample.csv
+*.csv
+*.vcf
+/logs/*.log
+/logs/*.tmp

@@ -26,7 +26,7 @@ class DatabaseManager:
         self._setupDatabase()
 
     def _getConn(self):
-        """`with sqlite3.connect(...)` chỉ commit/rollback — bọc closing() để đóng hẳn."""
+        """`with sqlite3.connect(...)` chỉ commit/rollback - bọc closing() để đóng hẳn."""
         return closing(sqlite3.connect(self.dbFile))
 
     def _setupDatabase(self):

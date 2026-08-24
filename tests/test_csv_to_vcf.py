@@ -86,7 +86,7 @@ class CsvToVcfTest(unittest.TestCase):
         self.assertNotIn("dòng 1\ndòng 2", vcard)
 
     def test_o_trong_la_None_khong_lam_hong_luong_xu_ly(self):
-        """sqlite3.Row không có .get(); ô rỗng trả None — cả hai từng gây lỗi."""
+        """sqlite3.Row không có .get(); ô rỗng trả None - cả hai từng gây lỗi."""
         converter.importCsvToDb(self.csvPath, MAPPINGS, self.db)
         rows = self.db.getContactsPaginated(1, 10)
         self.assertFalse(hasattr(rows[0], 'get'))

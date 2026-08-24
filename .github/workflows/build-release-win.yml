@@ -38,7 +38,7 @@ jobs:
           $appVersion = python -c "from src.app_info import APP_VERSION; print(APP_VERSION)"
           $tagVersion = "${{ github.ref_name }}" -replace '^v', ''
           if ($tagVersion -ne $appVersion) {
-            throw "Tag '$tagVersion' khác APP_VERSION '$appVersion' — sửa src/app_info.py hoặc đặt lại tag."
+            throw "Tag '$tagVersion' khác APP_VERSION '$appVersion' - sửa src/app_info.py hoặc đặt lại tag."
           }
           Write-Host "Phiên bản: $appVersion"
 

@@ -120,6 +120,6 @@
   "format": {
     "date": "DD/MM/YYYY hiển thị dạng SỐ, ví dụ 01/02/2027. TUYỆT ĐỐI không hiển thị chuỗi chữ 'dd/mm/yyyy' ra giao diện.",
     "datetime": "HH:mm DD/MM/YYYY, ví dụ 14:30 19/08/2026",
-    "version-app": "{ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext} — xem docs/DESIGN_SYSTEM.md mục 6"
+    "version-app": "{ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext} - xem docs/DESIGN_SYSTEM.md mục 6"
   }
 }

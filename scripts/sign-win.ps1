@@ -1,13 +1,13 @@
-﻿# sign-win.ps1 — Ký số (Authenticode) bản .exe bằng công cụ CÓ SẴN trong Windows.
+﻿# sign-win.ps1 - Ký số (Authenticode) bản .exe bằng công cụ CÓ SẴN trong Windows.
 # LƯU Ý: file này PHẢI lưu ở UTF-8 CÓ BOM (xem đầu scripts/build-win.ps1).
 #
 # CHI PHÍ: script này KHÔNG dùng dịch vụ trả phí nào. Nhưng phải nói thẳng:
 #   * Chứng thư TỰ KÝ (-SelfSigned) là miễn phí, ký được, đóng dấu thời gian được,
-#     nhưng KHÔNG gỡ được cảnh báo SmartScreen trên máy người khác — vì máy đó không
+#     nhưng KHÔNG gỡ được cảnh báo SmartScreen trên máy người khác - vì máy đó không
 #     tin chứng thư của mình. Nó chỉ hữu ích để kiểm thử quy trình ký, hoặc cho máy
 #     nội bộ đã cài chứng thư (-TrustLocally).
 #   * Muốn hết cảnh báo trên MỌI máy thì bắt buộc phải mua chứng thư OV/EV của CA
-#     (khoảng vài triệu đồng/năm) — KHÔNG có phương án miễn phí tương đương.
+#     (khoảng vài triệu đồng/năm) - KHÔNG có phương án miễn phí tương đương.
 #   * Cách miễn phí thay thế đang dùng: phát hành qua GitHub Releases kèm
 #     SHA256SUMS.txt để người tải tự đối chiếu mã băm (xem README.md).
 #
@@ -27,10 +27,10 @@ param(
     [string]$PfxPath,
     # Dấu vân tay chứng thư đã cài sẵn trong Cert:\CurrentUser\My
     [string]$Thumbprint,
-    # Tạo (hoặc dùng lại) chứng thư tự ký MIỄN PHÍ — chỉ để kiểm thử, xem ghi chú đầu file.
+    # Tạo (hoặc dùng lại) chứng thư tự ký MIỄN PHÍ - chỉ để kiểm thử, xem ghi chú đầu file.
     [switch]$SelfSigned,
     # Cài chứng thư tự ký vào kho tin cậy của NGƯỜI DÙNG HIỆN TẠI trên máy này.
-    # Windows sẽ hiện hộp thoại hỏi xác nhận — phải bấm Yes, không tự động được.
+    # Windows sẽ hiện hộp thoại hỏi xác nhận - phải bấm Yes, không tự động được.
     [switch]$TrustLocally,
     # Máy chủ đóng dấu thời gian RFC3161 (miễn phí, không cần tài khoản).
     [string]$TimestampUrl = 'http://timestamp.digicert.com'
@@ -80,7 +80,7 @@ if ($PfxPath) {
     }
     if ($TrustLocally) {
         Write-Step 'Cài chứng thư vào Cert:\CurrentUser\Root (chỉ có tác dụng trên máy này)'
-        Write-Host '  Windows sẽ hỏi xác nhận cài chứng thư gốc — bấm Yes thì mới có hiệu lực.' -ForegroundColor Yellow
+        Write-Host '  Windows sẽ hỏi xác nhận cài chứng thư gốc - bấm Yes thì mới có hiệu lực.' -ForegroundColor Yellow
         $exported = Join-Path $env:TEMP 'tsudev-selfsigned.cer'
         Export-Certificate -Cert $cert -FilePath $exported | Out-Null
         Import-Certificate -FilePath $exported -CertStoreLocation Cert:\CurrentUser\Root | Out-Null
@@ -95,7 +95,7 @@ Write-Step "Ký bằng chứng thư: $($cert.Subject)"
 $result = Set-AuthenticodeSignature -FilePath $Path -Certificate $cert `
     -HashAlgorithm SHA256 -TimestampServer $TimestampUrl
 if ($result.Status -ne 'Valid' -and $result.Status -ne 'UnknownError') {
-    throw "Ký thất bại: $($result.Status) — $($result.StatusMessage)"
+    throw "Ký thất bại: $($result.Status) - $($result.StatusMessage)"
 }
 
 # --- 4. Kiểm chứng ---
