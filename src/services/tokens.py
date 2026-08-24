@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Đọc `tokens/design-tokens.json` — nguồn chân lý duy nhất cho màu/cỡ chữ/spacing.
+"""Đọc `tokens/design-tokens.json` - nguồn chân lý duy nhất cho màu/cỡ chữ/spacing.
 
 CẤM hard-code màu, cỡ chữ, bo góc, spacing ở bất kỳ đâu trong `src/`
 (AGENTS.md mục 6). Mọi giá trị giao diện phải lấy qua đối tượng `Tokens` này.
@@ -57,7 +57,7 @@ class Tokens:
                 self._availableFamilies = set()
         return self._availableFamilies
 
-    # Tên font generic của CSS — tkinter không hiểu, loại khỏi chuỗi fallback
+    # Tên font generic của CSS - tkinter không hiểu, loại khỏi chuỗi fallback
     GENERIC_FAMILIES = {'system-ui', '-apple-system', 'sans-serif', 'serif', 'monospace'}
 
     def _pickFamily(self, key: str) -> str:

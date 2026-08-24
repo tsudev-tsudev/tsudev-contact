@@ -1,4 +1,4 @@
-﻿# test-gui-win.ps1 — Chạy bộ kiểm thử GUI tự động trên Windows.
+﻿# test-gui-win.ps1 - Chạy bộ kiểm thử GUI tự động trên Windows.
 # LƯU Ý: file này PHẢI lưu ở UTF-8 CÓ BOM (xem đầu scripts/build-win.ps1).
 # Chạy từ thư mục gốc repo:  powershell -ExecutionPolicy Bypass -File scripts\test-gui-win.ps1
 # WSL không có tkinter/màn hình → tests/test_gui_smoke.py tự bỏ qua; chỉ script này chạy thật.
@@ -22,7 +22,7 @@ if (-not (Get-Command $python -ErrorAction SilentlyContinue)) {
 Write-Step "Python: $(& $python --version)"
 
 & $python -c "import tkinter; tkinter.Tk().destroy()"
-if ($LASTEXITCODE -ne 0) { throw 'Không mở được cửa sổ tkinter — cần phiên đồ họa (không chạy qua SSH/Session 0).' }
+if ($LASTEXITCODE -ne 0) { throw 'Không mở được cửa sổ tkinter - cần phiên đồ họa (không chạy qua SSH/Session 0).' }
 
 if ($GuiOnly) {
     Write-Step 'Chạy tests/test_gui_smoke.py'

@@ -50,7 +50,7 @@ class ContactsApp:
     def _configureStyles(self):
         t = self.tokens
         self.style = getattr(self, 'style', None) or ttk.Style(self.root)
-        # 'vista' vẽ widget theo native Windows (đẹp nhưng bỏ qua màu nền) — chỉ hợp chủ đề
+        # 'vista' vẽ widget theo native Windows (đẹp nhưng bỏ qua màu nền) - chỉ hợp chủ đề
         # sáng. Chủ đề ấm/tối cần đổi nền nên phải dùng 'clam' (tôn trọng mọi màu).
         for themeName in (('vista', 'clam') if t.theme == 'light' else ('clam',)):
             try:
@@ -131,7 +131,7 @@ class ContactsApp:
         self._restyleClassicWidgets()
 
     def _restyleClassicWidgets(self):
-        """Widget Tk cổ điển (không phải ttk) không theo Style — phải tô lại thủ công."""
+        """Widget Tk cổ điển (không phải ttk) không theo Style - phải tô lại thủ công."""
         t = self.tokens
         self.convertButton.config(bg=t.color('primary'), fg=t.color('on-primary'),
                                   activebackground=t.color('primary-hover'),
@@ -340,7 +340,7 @@ class ContactsApp:
             daemon=True).start()
 
     def _conversionWorker(self, csvPath, vcfPath, mappings):
-        """Chạy trong thread nền — mọi cập nhật UI phải đi qua `root.after`."""
+        """Chạy trong thread nền - mọi cập nhật UI phải đi qua `root.after`."""
         try:
             def onImportProgress(rowIndex, totalRows):
                 self._uiCall(self._updateProgress,
@@ -395,7 +395,7 @@ class ContactsApp:
         try:
             self.uiPumpJobId = self.root.after(UI_QUEUE_POLL_MS, self._pumpUiQueue)
         except tk.TclError:
-            self.uiPumpJobId = None  # cửa sổ đã đóng — dừng vòng lặp
+            self.uiPumpJobId = None  # cửa sổ đã đóng - dừng vòng lặp
 
     def _onRootDestroyed(self, event):
         """Hủy lượt hẹn đang treo, tránh Tcl báo `invalid command name` lúc thoát."""

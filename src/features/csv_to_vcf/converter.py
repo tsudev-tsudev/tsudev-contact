@@ -26,7 +26,7 @@ DB_FIELDS = ['name', 'number', 'email', 'organization', 'address', 'birthday', '
 REQUIRED_FIELDS = ['name', 'number']
 
 # Tên cột thường gặp trong file CSV xuất từ Google Contacts / Outlook / Excel tiếng Việt.
-# Dùng để đoán ánh xạ cột — người dùng vẫn có thể chọn lại bằng tay.
+# Dùng để đoán ánh xạ cột - người dùng vẫn có thể chọn lại bằng tay.
 FIELD_ALIASES = {
     'name': ['name', 'ten', 'hoten', 'fullname', 'displayname', 'contactname'],
     'number': ['number', 'phone', 'sdt', 'sodienthoai', 'dienthoai', 'mobile', 'tel', 'cell'],
@@ -107,7 +107,7 @@ def buildVcard(contact) -> str:
 def importCsvToDb(csvPath, mappings, db, onProgress=None, onRowError=None) -> int:
     """Nạp toàn bộ CSV vào SQLite theo bảng ánh xạ cột. Trả về số dòng dữ liệu.
 
-    `mappings`: {trường vCard: tên cột CSV} — giá trị SKIP_OPTION nghĩa là bỏ qua.
+    `mappings`: {trường vCard: tên cột CSV} - giá trị SKIP_OPTION nghĩa là bỏ qua.
     `onProgress(rowIndex, totalRows)`, `onRowError(rowNumber)`: callback tùy chọn.
     """
     db.clearAllContacts()

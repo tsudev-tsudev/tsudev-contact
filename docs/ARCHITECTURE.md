@@ -1,4 +1,4 @@
-# ARCHITECTURE.md — Quyết định kiến trúc của repo tsudev-contact
+# ARCHITECTURE.md - Quyết định kiến trúc của repo tsudev-contact
 
 > Ghi 1 lần, các phiên sau tham chiếu đường dẫn này thay vì đọc lại mã nguồn.
 > Quy ước chung: `AGENTS.md`, `docs/PROJECT_STRUCTURE.md`, `docs/DESIGN_SYSTEM.md`.
@@ -16,16 +16,16 @@ kèm cửa sổ xem trước dữ liệu có phân trang.
 | Ảnh/icon | `Pillow` (`PIL`) | Duy nhất 1 dependency ngoài stdlib |
 | Lưu trữ tạm | `sqlite3` (stdlib) → `contacts_data.db` | Xem trước hàng nghìn dòng không nạp hết vào RAM |
 | Chạy nền | `threading` | Giữ UI không đơ khi chuyển đổi file lớn |
-| Đóng gói | PyInstaller — `Contacts.spec` | `console=False`, nhúng `icon.png` qua `datas` |
+| Đóng gói | PyInstaller - `Contacts.spec` | `console=False`, nhúng `icon.png` qua `datas` |
 
 ## 3. Bố cục mã nguồn
 
 `contacts.pyw` ở gốc chỉ còn là **điểm khởi chạy mỏng** (nạp `sys.path` rồi gọi `src.main.app.main`)
-— giữ nguyên để `Contacts.spec` và thói quen bấm đúp file không đổi.
+- giữ nguyên để `Contacts.spec` và thói quen bấm đúp file không đổi.
 
 ```
 src/
-├── app_info.py                     # tên app, phiên bản, tác giả — khai báo 1 nơi
+├── app_info.py                     # tên app, phiên bản, tác giả - khai báo 1 nơi
 ├── main/app.py                     # AppLauncher: splash → cửa sổ chính + hiệu ứng trượt
 ├── features/
 │   ├── csv_to_vcf/converter.py     # logic chuyển đổi THUẦN, không import tkinter
@@ -40,7 +40,7 @@ src/
 tests/test_csv_to_vcf.py            # test tích hợp luồng CSV → SQLite → vCard
 ```
 
-**Quy tắc đặt tên**: thư mục/file theo `snake_case` thay vì `kebab-case` — Python không
+**Quy tắc đặt tên**: thư mục/file theo `snake_case` thay vì `kebab-case` - Python không
 import được tên có dấu gạch ngang. Áp dụng ngoại lệ "theo chuẩn ngôn ngữ" của
 `docs/PROJECT_STRUCTURE.md`; ngữ nghĩa tên giữ nguyên. Hàm/biến dùng `camelCase` đúng quy ước.
 
@@ -56,7 +56,7 @@ chuyển đổi test được mà không cần màn hình.
 **Chủ đề sáng/ấm/tối**: menu *Giao diện* đổi chủ đề ngay lúc chạy và ghi nhớ vào
 `settings.json` trong thư mục dữ liệu tạm. Chủ đề `light` dùng ttk theme `vista` (widget vẽ
 theo native Windows, đẹp nhưng **bỏ qua màu nền**); `warm`/`dark` bắt buộc chuyển sang theme
-`clam` vì cần đổi nền — `_configureNonNativeStyles()` tô lại Entry/Combobox/Button/Treeview/
+`clam` vì cần đổi nền - `_configureNonNativeStyles()` tô lại Entry/Combobox/Button/Treeview/
 Progressbar/Scrollbar từ tokens. Widget Tk cổ điển (nút chính, ô nhật ký) không theo
 `ttk.Style` nên được tô riêng trong `_restyleClassicWidgets()`.
 
@@ -74,22 +74,22 @@ File CSV người dùng chọn (filedialog)
 
 - **Dữ liệu danh bạ không bao giờ vào git.** `*.csv`, `*.vcf`, `*.db` đã ignore
   (PII: họ tên, số điện thoại, chức vụ cán bộ). Đường dẫn CSV do người dùng chọn
-  lúc chạy, **không hard-code** — nên việc ignore không ảnh hưởng ứng dụng.
+  lúc chạy, **không hard-code** - nên việc ignore không ảnh hưởng ứng dụng.
 - **Chạy hoàn toàn cục bộ**: không gọi mạng, không secret, không biến môi trường
   (xem `.env.example`). Không phát sinh chi phí hạ tầng.
-- **Chỉ 1 dependency ngoài stdlib** (`Pillow`) — giữ nguyên tắc "thư viện nhẹ" của AGENTS.md mục 4.
+- **Chỉ 1 dependency ngoài stdlib** (`Pillow`) - giữ nguyên tắc "thư viện nhẹ" của AGENTS.md mục 4.
 
 ## 6. Lỗi đã sửa khi tái cấu trúc (20/08/2026)
 
 Ba lỗi tồn tại trong bản 1 file, phát hiện khi tách module:
 
-1. **`sqlite3.Row` không có `.get()`** — `contact.get('email')` trong luồng xuất VCF ném
+1. **`sqlite3.Row` không có `.get()`** - `contact.get('email')` trong luồng xuất VCF ném
    `AttributeError` ngay liên hệ đầu tiên, rơi vào `except` và báo "Lỗi nghiêm trọng"
    → **chức năng xuất VCF không bao giờ chạy xong**. `PreviewWindow` mắc đúng lỗi này.
    Đã đổi sang truy cập bằng khóa (`contact['email'] or ''`), có test chặn hồi quy.
-2. **Sai số tham số** — `_update_progress(value, text)` được gọi với 3 tham số ở nhánh
+2. **Sai số tham số** - `_update_progress(value, text)` được gọi với 3 tham số ở nhánh
    hoàn tất và nhánh lỗi → `TypeError`, thanh tiến trình không bao giờ chốt 100%.
-3. **Rò rỉ kết nối SQLite** — `with sqlite3.connect(...)` chỉ commit/rollback, không đóng
+3. **Rò rỉ kết nối SQLite** - `with sqlite3.connect(...)` chỉ commit/rollback, không đóng
    kết nối. Đã bọc `contextlib.closing`.
 
 Ngoài ra, CSDL tạm chuyển từ thư mục cài đặt (`resourcePath`) sang thư mục temp của người
@@ -97,24 +97,24 @@ dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file �
 
 ### 6.1. Lỗi phát hiện khi chạy thử GUI thật trên Windows (20/08/2026)
 
-4. **Nút "BẮT ĐẦU CHUYỂN ĐỔI" mất chữ** — style `Highlight.TButton` đặt
+4. **Nút "BẮT ĐẦU CHUYỂN ĐỔI" mất chữ** - style `Highlight.TButton` đặt
    `foreground=on-primary` (trắng) kèm `background=primary`, nhưng theme `vista` của ttk vẽ
    nút bằng native theme và **bỏ qua `-background`** → chữ trắng trên nền trắng khi nút có
    focus. Đã đổi sang `tk.Button` (widget cổ điển tôn trọng `bg`/`fg`), màu vẫn lấy từ tokens.
    *Bài học: trên Windows, style ttk chỉ nên chỉnh `foreground`/`font`; muốn đổi nền nút phải
    dùng `tk.Button` hoặc theme `clam`.*
-5. **Đoán cột CSV bỏ sót trường bắt buộc SĐT** — hàm đoán cũ so khớp `field in header`, nên
+5. **Đoán cột CSV bỏ sót trường bắt buộc SĐT** - hàm đoán cũ so khớp `field in header`, nên
    cột `Phone`/`Số điện thoại` không khớp trường `number`, `Note` không khớp `notes`; người
    dùng luôn phải chọn tay 2 trường bắt buộc. Đã thay bằng `converter.guessHeader` + bảng
-   `FIELD_ALIASES` (Anh/Việt, bỏ dấu, khớp nguyên tên trước rồi mới khớp một phần —
+   `FIELD_ALIASES` (Anh/Việt, bỏ dấu, khớp nguyên tên trước rồi mới khớp một phần -
    hỗ trợ cả `Phone 1 - Value` của Google Contacts). 5 test bao phủ.
 
 ### 6.2. Lỗi phát hiện khi tự động hóa kiểm thử GUI (20/08/2026)
 
-6. **Gọi `root.after` từ thread nền** — `ContactsApp._uiCall` chạy trong thread chuyển đổi và
+6. **Gọi `root.after` từ thread nền** - `ContactsApp._uiCall` chạy trong thread chuyển đổi và
    gọi thẳng `self.root.after(...)`, tức là chạm vào interpreter Tcl từ thread khác. Khi có
    `mainloop()` thật thì thường "may mà chạy", nhưng test tự động (quay vòng lặp bằng
-   `update()`) làm nó ném `RuntimeError: main thread is not in main loop` — đúng bản chất:
+   `update()`) làm nó ném `RuntimeError: main thread is not in main loop` - đúng bản chất:
    tkinter **không an toàn đa luồng**. Đã đổi sang `queue.Queue`: thread nền chỉ `put()`,
    main thread có `_pumpUiQueue` (hẹn lại mỗi 30ms) rút hàng đợi và đụng widget. Lượt hẹn
    đang treo được `after_cancel` khi cửa sổ gốc bị hủy, tránh Tcl báo `invalid command name`.
@@ -124,9 +124,9 @@ dùng: thư mục cài đặt có thể chỉ-đọc (Program Files), và file �
 
 1. Chưa có trình cài đặt thật (Inno/NSIS): bản phát hành là **1 file .exe onefile** mang tên
    `..._x64-setup.exe`. Thêm installer khi cần shortcut Start Menu / gỡ cài đặt.
-2. Chưa ký số bằng chứng thư của CA — SmartScreen vẫn cảnh báo ở lần chạy đầu trên máy khác.
+2. Chưa ký số bằng chứng thư của CA - SmartScreen vẫn cảnh báo ở lần chạy đầu trên máy khác.
    `scripts/sign-win.ps1` đã có sẵn quy trình ký (Authenticode + dấu thời gian, dùng công cụ
-   có sẵn trong Windows, không tốn phí), nhưng **chứng thư tự ký không gỡ được cảnh báo** —
+   có sẵn trong Windows, không tốn phí), nhưng **chứng thư tự ký không gỡ được cảnh báo** -
    muốn hết cảnh báo phải mua chứng thư OV/EV, không có phương án miễn phí tương đương.
    Cách xác thực miễn phí đang dùng: `release/SHA256SUMS.txt` đính kèm mỗi Release.
 

@@ -1,5 +1,5 @@
-﻿# build-win.ps1 — Gói bản phát hành Windows x64 cho tsudev-contact.
-# LƯU Ý: file này PHẢI lưu ở UTF-8 CÓ BOM — Windows PowerShell 5.1 đọc .ps1 không BOM
+﻿# build-win.ps1 - Gói bản phát hành Windows x64 cho tsudev-contact.
+# LƯU Ý: file này PHẢI lưu ở UTF-8 CÓ BOM - Windows PowerShell 5.1 đọc .ps1 không BOM
 # theo bảng mã ANSI, làm hỏng chữ tiếng Việt và gây lỗi cú pháp khi chạy.
 # Chạy từ thư mục gốc repo:  powershell -ExecutionPolicy Bypass -File scripts\build-win.ps1
 # Tên file xuất ra do src/app_info.py quyết định (docs/DESIGN_SYSTEM.md mục 6).
@@ -47,7 +47,7 @@ Write-Step "Bản phát hành: $releaseName.exe"
 # --- 4. Kiểm thử tối thiểu (AGENTS.md mục 3, checklist trước phát hành) ---
 Write-Step 'Chạy test'
 & $python -m unittest discover -s tests -v
-if ($LASTEXITCODE -ne 0) { throw 'Test thất bại — dừng build.' }
+if ($LASTEXITCODE -ne 0) { throw 'Test thất bại - dừng build.' }
 
 # --- 5. Đóng gói ---
 Write-Step 'PyInstaller'
@@ -65,7 +65,7 @@ Move-Item -Force $built $final
 
 if (-not $KeepBuild) { Remove-Item -Recurse -Force (Join-Path $repoRoot 'build') -ErrorAction SilentlyContinue }
 
-# --- 7. Ký số (tùy chọn) — phải ký TRƯỚC khi tính mã băm ---
+# --- 7. Ký số (tùy chọn) - phải ký TRƯỚC khi tính mã băm ---
 if ($Sign -or $PfxPath -or $Thumbprint -or $SelfSigned) {
     Write-Step 'Ký số bản .exe'
     $signArgs = @{ Path = $final }

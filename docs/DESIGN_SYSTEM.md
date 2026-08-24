@@ -1,8 +1,8 @@
-# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) — v1.0.0
+# QUY ƯỚC GIAO DIỆN TOÀN PROJECT (DESIGN SYSTEM) - v1.0.0
 
 > Áp dụng cho MỌI website, tool, phần mềm desktop (Electron/C#/Python/C++), app trong hệ sinh thái.
 > Nguồn giá trị duy nhất: `tokens/design-tokens.json` (Web/Electron dùng `tokens/tokens.css`).
-> Cấm hard-code màu/cỡ chữ/radius trong source code — chỉ dùng token.
+> Cấm hard-code màu/cỡ chữ/radius trong source code - chỉ dùng token.
 
 ## 1. Hệ màu & 3 chế độ nền (Adaptive Light)
 
@@ -31,10 +31,10 @@ Màu chủ đạo: **Blue**. Nền là blue nhạt dịu mắt, bề mặt (moda
 
 | Token | Giá trị | Áp dụng |
 |---|---|---|
-| `radius-none` | `0px` | Khung layout, sidebar, header, footer, đường chia cột — **viền thẳng tắp** |
+| `radius-none` | `0px` | Khung layout, sidebar, header, footer, đường chia cột - **viền thẳng tắp** |
 | `radius-sm` | `4px` | Badge, tag, checkbox, ô nhỏ trong table |
-| `radius-md` | `6px` | **Button, input, dropdown, modal nhỏ** — bo tinh tế, không quá tròn |
-| `radius-lg` | `8px` | **Modal lớn, table container, card** — mềm góc, không góc cạnh sắc |
+| `radius-md` | `6px` | **Button, input, dropdown, modal nhỏ** - bo tinh tế, không quá tròn |
+| `radius-lg` | `8px` | **Modal lớn, table container, card** - mềm góc, không góc cạnh sắc |
 
 Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover dùng `border-strong` hoặc `primary`). Không dùng viền double/dashed cho component chuẩn.
 
@@ -43,13 +43,13 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 - Lưới spacing bội số **4px** (`--sp-1..12`). Layout vuông vắn, căn theo cột; không đặt phần tử lệch lưới.
 - Mật độ 2 mức: **Comfortable** (mặc định, hàng table cao 44px, padding cell 12px 16px) và **Compact** (tool desktop nhiều dữ liệu, hàng 36px, padding 8px 12px).
 - Chiều rộng khối văn bản dài tối đa **72ch** để mắt đảo dòng không mỏi.
-- Modal: padding `24px`, cách nhau giữa field trong form `16px`, giữa section `32px`. Modal nhỏ rộng 400–480px, modal lớn 640–800px, luôn căn giữa màn hình trên lớp `overlay`.
+- Modal: padding `24px`, cách nhau giữa field trong form `16px`, giữa section `32px`. Modal nhỏ rộng 400-480px, modal lớn 640-800px, luôn căn giữa màn hình trên lớp `overlay`.
 - Đổ bóng tối giản: `shadow-sm` (button/input) → `shadow-md` (dropdown/toast) → `shadow-lg` (modal). Không dùng bóng màu.
 
 ## 4. Typography (chuẩn tiếng Việt, chống mỏi mắt)
 
 - Font thống nhất: **Inter** (hỗ trợ đầy đủ dấu tiếng Việt), fallback: `'SF Pro Text', 'Segoe UI', 'Roboto', system-ui, sans-serif`. Font code: `JetBrains Mono` → `Cascadia Code` → `Consolas`.
-- Body text: Desktop Tools **14–15px**, Web **15–16px**. Không bao giờ nhỏ hơn 12px (kể cả caption).
+- Body text: Desktop Tools **14-15px**, Web **15-16px**. Không bao giờ nhỏ hơn 12px (kể cả caption).
 - Line-height: heading `1.3`, body `1.55`, văn bản dài `1.6`.
 - Thang cỡ chữ: 12 / 13 / 14 / 15 / 16 / 18(H4) / 20(H3) / 24(H2) / 30(H1).
 - Weight: 400 body, 500 label/menu, 600 heading & button, 700 chỉ dùng nhấn mạnh số liệu. Không dùng weight 300 (mảnh, khó đọc tiếng Việt có dấu).
@@ -67,7 +67,7 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 |---|---|
 | Default | Màu token gốc, viền 1px `border` |
 | Hover | Nền chuyển `primary-hover` (nút chính) hoặc `bg-hover` (nút phụ/hàng table); con trỏ `pointer`; chuyển màu `120ms` |
-| Focus | Vòng focus `2px solid focus-ring`, offset `2px` — luôn nhìn thấy được bằng bàn phím |
+| Focus | Vòng focus `2px solid focus-ring`, offset `2px` - luôn nhìn thấy được bằng bàn phím |
 | Disabled | Opacity `0.5`, con trỏ `not-allowed`, không nhận hover/focus, không đổ bóng |
 
 **Controls:**
@@ -86,7 +86,7 @@ Viền luôn **phẳng 1px solid** màu `border` (viền được focus/hover d�
 - **Tree View**: thụt cấp 20px, mũi tên xoay 16px, node đang chọn nền `bg-subtle` + viền trái 2px `primary`.
 - **List View**: item cao 40px (compact 32px), phân cách viền 1px `border`, chọn = nền `bg-subtle`.
 
-## 6. Quy ước tên phiên bản phát hành (app/tool/phần mềm — KHÔNG áp dụng website)
+## 6. Quy ước tên phiên bản phát hành (app/tool/phần mềm - KHÔNG áp dụng website)
 
 Định dạng: `{ten-app}_{YY}.{M}.{DD}{NN}_{arch}-setup.{ext}`
 
@@ -98,7 +98,7 @@ Ví dụ ngày 19/8/2026, app `tsudev-swico` Windows 64-bit:
 2. Bản 2 cùng ngày: `tsudev-swico_26.8.1902_x64-setup.exe`
 3. Bản 3 cùng ngày: `tsudev-swico_26.8.1903_x64-setup.exe`
 
-Chuỗi version trong code/manifest = `26.8.1901` (đồng bộ với tên file). Mỗi lần phát hành ghi 1 dòng vào `CHANGELOG.md` theo dạng `26.8.1901 — 19/08/2026 — nội dung thay đổi`.
+Chuỗi version trong code/manifest = `26.8.1901` (đồng bộ với tên file). Mỗi lần phát hành ghi 1 dòng vào `CHANGELOG.md` theo dạng `26.8.1901 - 19/08/2026 - nội dung thay đổi`.
 
 ## 7. Cách truy xuất token theo nền tảng
 

@@ -2,7 +2,7 @@
 """Tùy chọn người dùng (chủ đề giao diện...) lưu trong thư mục dữ liệu tạm của ứng dụng.
 
 KHÔNG lưu cạnh file thực thi: thư mục cài đặt có thể chỉ-đọc (xem docs/ARCHITECTURE.md).
-File này chỉ chứa tùy chọn hiển thị — tuyệt đối không chứa dữ liệu danh bạ.
+File này chỉ chứa tùy chọn hiển thị - tuyệt đối không chứa dữ liệu danh bạ.
 """
 import json
 import os

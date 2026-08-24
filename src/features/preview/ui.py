@@ -95,7 +95,7 @@ class PreviewWindow(tk.Toplevel):
         for item in self.tree.get_children():
             self.tree.delete(item)
         for contact in self.db.getContactsPaginated(self.currentPage, self.pageSize):
-            # sqlite3.Row không có .get() — truy cập bằng khóa, cột luôn tồn tại trong schema
+            # sqlite3.Row không có .get() - truy cập bằng khóa, cột luôn tồn tại trong schema
             values = [contact[key] or '' for key in self.columnKeys]
             tags = ('failed_row',) if contact['status'] == 'failed' else ()
             self.tree.insert("", tk.END, values=values, tags=tags)
