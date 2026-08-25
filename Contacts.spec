@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-# Tên file xuất ra theo docs/DESIGN_SYSTEM.md mục 6 — lấy từ src/app_info.py (nguồn duy nhất).
+# Tên file xuất ra theo docs/DESIGN_SYSTEM.md mục 6 - lấy từ src/app_info.py (nguồn duy nhất).
 import sys
 
 sys.path.insert(0, SPECPATH)
@@ -11,7 +11,7 @@ a = Analysis(
     binaries=[],
     datas=[
         ('icon.png', '.'),
-        # tokens/ là nguồn chân lý giao diện — src/services/tokens.py đọc lúc chạy
+        # tokens/ là nguồn chân lý giao diện - src/services/tokens.py đọc lúc chạy
         ('tokens/design-tokens.json', 'tokens'),
     ],
     hiddenimports=[],

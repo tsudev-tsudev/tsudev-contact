@@ -11,6 +11,9 @@
 
 - [ ] **QU-STD-1** Di trú `tokens/` sang `.standards/tokens/` (nguồn chân lý duy nhất). Hiện có **4 file mã nguồn** đọc token cục bộ. Đây là thay đổi PHÁ VỠ: `text-muted` đổi giá trị ở cả ba chế độ và có thêm `border-control`. Làm theo CHANGELOG mục 2.0.0 "Hướng dẫn nâng cấp", chạy lại ảnh chụp giao diện.
 - [ ] **QU-STD-2** Xóa bản sao quy ước cũ nay đã trùng `.standards/`: docs/DESIGN_SYSTEM.md docs/PROJECT_STRUCTURE.md docs/templates/HANDOVER.md - giữ lại chỉ tạo hai nguồn chân lý.
+- [ ] **QU-STD-AUTH** Rà luồng đăng nhập theo `.standards/docs/AUTH_AND_ACCOUNT.md` mục 17. **CHẶN, cần chủ project quyết trước khi làm**: tài liệu mục 1 xếp `tsudev-contact` là **hạng A - web có tài khoản**, nhưng repo này là app desktop Tkinter đóng gói `.exe` bằng PyInstaller, chạy ngoại tuyến, không có tài khoản nào. Theo mô tả trong bảng thì nó là **hạng C**. Làm theo hạng A nghĩa là dựng cả luồng OIDC cho một công cụ chuyển CSV sang vCard. Xem TS-15 ở `tsudev-standards`.
+- [ ] **QU-STD-TABLE** Thêm bộ chọn số bản ghi `10/20/50/100/200` (mặc định `10`, góc dưới bên trái) cho cửa sổ xem trước danh bạ. Chuẩn: `.standards/docs/DATA_TABLE.md` mục 12.
+- [ ] **QU-STD-BRAND** Bổ sung tài sản nhận diện còn thiếu và siêu dữ liệu nối về `tsudev.com`. Chuẩn: `.standards/docs/BRAND_ASSETS.md` mục 14 và `.standards/docs/ECOSYSTEM_IDENTITY.md` mục 9.
 - [ ] **QU-STD-3** Rà chỗ dùng `border-strong` cho viền nút phụ hoặc ô nhập, đổi sang `border-control` (`.standards/docs/DESIGN_SYSTEM.md` mục 1).
 
 ## Đang thực hiện
